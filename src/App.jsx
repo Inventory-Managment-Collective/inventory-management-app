@@ -16,7 +16,7 @@ function App() {
         <Route path="/about" element={<About/>}/>
 
         <Route path="/ingredients" element={<Ingredients/>}/>
-        <Route path="/ingredients/:ingredeientId" element={<IngredientDetails/>}/>
+        <Route path="/ingredients/:ingredientId" element={<IngredientDetails/>}/>
         <Route path="/createIngredient" element={<CreateIngredient/>}/>
         <Route path="/updateIngredient" element={<UpdateIngredient/>}/>
 
