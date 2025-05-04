@@ -36,12 +36,12 @@ function App() {
         <Route path="/ingredients" element={<Ingredients/>}/>
         <Route path="/ingredients/:ingredientId" element={<IngredientDetails/>}/>
         <Route path="/createIngredient" element={<CreateIngredient/>}/>
-        <Route path="/updateIngredient" element={<UpdateIngredient/>}/>
+        <Route path="/updateIngredient/:ingredientId" element={<UpdateIngredient/>}/>
 
         <Route path="/recipes" element={<Recipes/>}/>
         <Route path="/recipes/:recipeId" element={<RecipeDetails/>}/>
         <Route path="/createRecipe" element={<CreateRecipe/>}/>
-        <Route path="/updateRecipe" element={<UpdateRecipe/>}/>
+        <Route path="/updateRecipe/:recipeId" element={<UpdateRecipe/>}/>
 
         <Route path='/*' element={<NotFound />}/>
       </Routes>

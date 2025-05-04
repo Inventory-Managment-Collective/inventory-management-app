@@ -1,24 +1,20 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Replace with your actual Firebase config
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAzen9EoJe8hTttd_ADIHQxlTdo6ln1ZsE",
-    authDomain: "ingredients-api-81412.firebaseapp.com",
-    databaseURL: "https://ingredients-api-81412-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "ingredients-api-81412",
-    storageBucket: "ingredients-api-81412.firebasestorage.app",
-    messagingSenderId: "486309424951",
-    appId: "1:486309424951:web:0bd0deee7b6743b49174b2",
-    measurementId: "G-DN2PKGFCVZ"
-  };
+  apiKey: "AIzaSyDC4ReCFiO8I5Sz-dcuIXvPo6xOnHSvyGg",
+  authDomain: "recipes-and-ingredients.firebaseapp.com",
+  databaseURL: "https://recipes-and-ingredients-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "recipes-and-ingredients",
+  storageBucket: "recipes-and-ingredients.firebasestorage.app",
+  messagingSenderId: "181011966222",
+  appId: "1:181011966222:web:e6a9d7a15a63c4d35b8f5f"
+};
 
-
-// Initialize Firebase app
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Get Firestore instance
-const db = getFirestore(app);
-
-
-export { db };
+export const db = getDatabase(app);
