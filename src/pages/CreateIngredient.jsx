@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, push, set } from 'firebase/database';
 import { db } from '../firebase';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default function CreateIngredient() {
   const [name, setName] = useState('');
@@ -9,6 +10,10 @@ export default function CreateIngredient() {
   const [unit, setUnit] = useState('');
   const [category, setCategory] = useState('');
   const navigate = useNavigate();
+
+  const auth = getAuth();
+
+  const user = auth.currentUser;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,6 +41,18 @@ export default function CreateIngredient() {
       alert('Failed to add ingredient.');
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div>

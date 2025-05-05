@@ -23,19 +23,19 @@ export default function Login() {
 
   const handleSignup = async () => {
     if (!email || !password) return alert("Please enter both email and password");
-
-    const newUser = {
-      email,
-      password,
-      ingredients: [{category: "Baking", name:"Sugar", quantity:300, unit:"Eggs"}],
-      recipes:["yes"],
-    };
-
+  
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      const usersRef = ref(db, 'users');
-        const newRef = push(usersRef);
-        await set(newRef, newUser);
+      
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+       
+      const userRef = ref(db, `users/${uid}`);
+      await set(userRef, {
+        email: email,
+        ingredients: {},
+        recipes: {}
+      });
+  
       alert("Account created!");
       navigate("/");
     } catch (err) {

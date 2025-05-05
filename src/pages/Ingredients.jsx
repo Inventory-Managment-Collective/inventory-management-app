@@ -2,11 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { ref, get, child, remove } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 
 export default function Ingredients() {
     const [ingredients, setIngredients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const auth = getAuth();
+
+    const user = auth.currentUser;
 
     useEffect(() => {
         const fetchIngredients = async () => {

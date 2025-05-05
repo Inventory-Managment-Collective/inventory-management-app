@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
@@ -10,6 +10,9 @@ import NotFound from './pages/NotFound'
 
 import LogIn from './pages/LogIn';
 
+import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
+
+import { auth } from './firebase';
 
 import Ingredients from './pages/Ingredients';
 import IngredientDetails from './pages/IngredientDetails'
