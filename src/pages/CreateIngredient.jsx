@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, push, set } from 'firebase/database';
 import { db } from '../firebase';
@@ -9,11 +9,11 @@ export default function CreateIngredient() {
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
   const [category, setCategory] = useState('');
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const auth = getAuth();
 
-  const user = auth.currentUser;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,8 +31,8 @@ export default function CreateIngredient() {
     };
 
     try {
-      const ingredientsRef = ref(db, 'ingredients');
-      const newRef = push(ingredientsRef);
+      const userIngredientsRef = ref(db, `users/${user.uid}/ingredients`);
+      const newRef = push(userIngredientsRef);
       await set(newRef, newIngredient);
       alert('Ingredient added!');
       navigate('/ingredients');

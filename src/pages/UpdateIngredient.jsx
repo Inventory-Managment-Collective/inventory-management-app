@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default function UpdateIngredient() {
   const { ingredientId } = useParams();
@@ -12,11 +13,28 @@ export default function UpdateIngredient() {
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
   const [category, setCategory] = useState('');
+  const [user, setUser] = useState(null);
+
+  const auth = getAuth();
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
     const fetchIngredient = async () => {
       try {
-        const snapshot = await get(ref(db, `ingredients/${ingredientId}`));
+        const snapshot = await get(ref(db, `users/${user.uid}/ingredients/${ingredientId}`));
         if (snapshot.exists()) {
           const data = snapshot.val();
           setName(data.name || '');
@@ -37,7 +55,7 @@ export default function UpdateIngredient() {
     };
 
     fetchIngredient();
-  }, [ingredientId, navigate]);
+  }, [user, ingredientId, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +68,7 @@ export default function UpdateIngredient() {
     };
 
     try {
-      await update(ref(db, `ingredients/${ingredientId}`), updatedData);
+      await update(ref(db, `users/${user.uid}/ingredients/${ingredientId}`), updatedData);
       alert('Ingredient updated!');
       navigate('/ingredients');
     } catch (error) {
