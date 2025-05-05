@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
+import { getAuth, onAuthStateChanged  } from 'firebase/auth';
 
 export default function UpdateRecipe() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
@@ -13,10 +15,26 @@ export default function UpdateRecipe() {
   const [instructions, setInstructions] = useState(['']);
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
 
+    const auth = getAuth();
+  
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
     const fetchRecipe = async () => {
       try {
-        const snapshot = await get(ref(db, `recipes/${recipeId}`));
+        const snapshot = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
         if (snapshot.exists()) {
           const data = snapshot.val();
           setName(data.name || '');
@@ -25,19 +43,19 @@ export default function UpdateRecipe() {
           setIngredients(data.ingredients || [{ name: '', quantity: '', unit: '' }]);
         } else {
           alert('Recipe not found.');
-          navigate('/recipes');
+          navigate('/userRecipes');
         }
       } catch (error) {
         console.error('Error fetching recipe:', error);
         alert('Failed to load recipe.');
-        navigate('/recipes');
+        navigate(`/userRecipes/${recipeId}`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecipe();
-  }, [recipeId, navigate]);
+  }, [recipeId, navigate, user]);
 
   const handleInstructionChange = (index, value) => {
     const updated = [...instructions];
@@ -76,9 +94,9 @@ export default function UpdateRecipe() {
     };
 
     try {
-      await update(ref(db, `recipes/${recipeId}`), updatedRecipe);
+      await update(ref(db, `users/${user.uid}/recipes/${recipeId}`), updatedRecipe);
       alert('Recipe updated!');
-      navigate('/recipes');
+      navigate(`/userRecipes/${recipeId}`);
     } catch (error) {
       console.error('Error updating recipe:', error);
       alert('Failed to update recipe.');
