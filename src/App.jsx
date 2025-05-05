@@ -15,7 +15,6 @@ import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 
 import Ingredients from './pages/Ingredients';
-import IngredientDetails from './pages/IngredientDetails'
 import CreateIngredient from './pages/CreateIngredient'
 import UpdateIngredient from './pages/UpdateIngredient'
 
@@ -23,6 +22,9 @@ import Recipes from './pages/Recipes'
 import RecipeDetails from './pages/RecipeDetails'
 import CreateRecipe from './pages/CreateRecipe'
 import UpdateRecipe from './pages/UpdateRecipe'
+
+import UserRecipes from './pages/UserRecipes';
+import UserRecipeDetails from './pages/UserRecipeDetails';
 
 
 import Navbar from './components/Navbar'
@@ -41,7 +43,6 @@ function App() {
         <Route path="/logIn" element={<LogIn/>}/>
 
         <Route path="/ingredients" element={<Ingredients/>}/>
-        <Route path="/ingredients/:ingredientId" element={<IngredientDetails/>}/>
         <Route path="/createIngredient" element={<CreateIngredient/>}/>
         <Route path="/updateIngredient/:ingredientId" element={<UpdateIngredient/>}/>
 
@@ -49,6 +50,8 @@ function App() {
         <Route path="/recipes/:recipeId" element={<RecipeDetails/>}/>
         <Route path="/createRecipe" element={<CreateRecipe/>}/>
         <Route path="/updateRecipe/:recipeId" element={<UpdateRecipe/>}/>
+        <Route path="/userRecipes" element={<UserRecipes/>}/>
+        <Route path="/userRecipes/:recipeId" element={<UserRecipeDetails/>}/>
 
         <Route path='/*' element={<NotFound />}/>
       </Routes>

@@ -56,7 +56,7 @@ export default function CreateRecipe() {
       const newRef = push(recipesRef);
       await set(newRef, newRecipe);
       alert('Recipe created!');
-      navigate('/recipes');
+      navigate('/userRecipes');
     } catch (error) {
       console.error('Error creating recipe:', error);
       alert('Failed to create recipe.');

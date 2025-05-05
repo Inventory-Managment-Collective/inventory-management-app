@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
-
+    const [user, setUser] = useState(null);
+    
+      const auth = getAuth();
+    
+      useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+          setUser(firebaseUser);
+        });
+    
+        return () => unsubscribe();
+      }, []);
 
     return (
         <div>
@@ -12,6 +23,11 @@ export default function Home() {
           <ul>
             <li><Link to="/ingredients">View Ingredients</Link></li>
             <li><Link to="/recipes">View Recipes</Link></li>
+            {user ? (
+                    <Link to="/userRecipes">See your Recipes</Link>
+                  ) : (
+                    <></>
+                  )}
           </ul>
         </div>
       );
