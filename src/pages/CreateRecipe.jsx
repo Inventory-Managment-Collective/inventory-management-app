@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, push, set } from 'firebase/database';
-import { db } from '../firebase';
+import { auth, db } from '../firebase';
+import { getAuth, onAuthStateChanged  } from 'firebase/auth';
 
 export default function CreateRecipe() {
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [instructions, setInstructions] = useState(['']);
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  const auth = getAuth();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +52,7 @@ export default function CreateRecipe() {
     };
 
     try {
-      const recipesRef = ref(db, 'recipes');
+      const recipesRef = ref(db, `users/${user.uid}/recipes`);
       const newRef = push(recipesRef);
       await set(newRef, newRecipe);
       alert('Recipe created!');
