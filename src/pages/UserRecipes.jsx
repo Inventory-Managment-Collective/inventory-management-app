@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ref, get, child, remove } from 'firebase/database';
+import { ref, get, child, push, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -13,11 +13,11 @@ export default function UserRecipes() {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-          setUser(firebaseUser);
+            setUser(firebaseUser);
         });
-    
+
         return () => unsubscribe();
-      }, []);
+    }, []);
 
     useEffect(() => {
         if (!user) return;
@@ -61,6 +61,31 @@ export default function UserRecipes() {
         }
     };
 
+    const handleShare = async (recipeId) => {
+        const confirmShare = window.confirm('Do you want to share this recipe globally?');
+        if (!confirmShare) return;
+
+        try {
+            const userRecipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
+            if (!userRecipeSnap.exists()) {
+                alert('Recipe not found.');
+                return;
+            }
+
+            const recipeData = userRecipeSnap.val();
+
+            const globalRecipesRef = ref(db, 'recipes');
+            const newRef = push(globalRecipesRef);
+            await set(newRef, recipeData);
+
+            alert('Recipe shared successfully!');
+        } catch (error) {
+            console.error('Error sharing recipe:', error);
+            alert('Failed to share recipe.');
+        }
+    };
+
+
 
 
     if (loading) return <p>Loading recipes...</p>;
@@ -94,6 +119,11 @@ export default function UserRecipes() {
                             <button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
                                 Delete
                             </button>
+                            {' '}
+                            <button onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
+                                Share
+                            </button>
+
                         </div>
                     ))}
                 </div>

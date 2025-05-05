@@ -115,7 +115,6 @@ export default function RecipeDetails() {
           );
         })}
       </ul>
-      <Link to={`/updateRecipe/${recipeId}`}>Edit Recipe</Link>
 
       <br />
       <button

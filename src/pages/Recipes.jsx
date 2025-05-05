@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { ref, get, child, remove } from 'firebase/database';
+import { ref, get, child, remove, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+
+    const auth = getAuth();
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            setUser(firebaseUser);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -49,6 +61,33 @@ export default function Recipes() {
 
 
 
+    const handleSave = async (recipeId) => {
+        const confirmSave = window.confirm('Are you sure you want to save this recipe?');
+        if (!confirmSave) return;
+      
+        try {
+          const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
+          if (!recipeSnap.exists()) {
+            alert('Recipe not found.');
+            return;
+          }
+      
+          const recipeData = recipeSnap.val();
+      
+          const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
+          const newRef = push(userRecipesRef);
+          await set(newRef, recipeData);
+      
+          alert('Recipe saved to your list!');
+          navigate('/userRecipes');
+        } catch (error) {
+          console.error('Error saving recipe:', error);
+          alert('Failed to save recipe.');
+        }
+      };
+
+
+
     if (loading) return <p>Loading recipes...</p>;
 
     return (
@@ -79,6 +118,10 @@ export default function Recipes() {
                             {' '}
                             <button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
                                 Delete
+                            </button>
+                            {' '}
+                            <button onClick={() => handleSave(recipe.id)} style={{ color: 'green' }}>
+                                Save
                             </button>
                         </div>
                     ))}
