@@ -8,6 +8,9 @@ import Home from './pages/Home';
 import About from './pages/About'
 import NotFound from './pages/NotFound'
 
+import LogIn from './pages/LogIn';
+
+
 import Ingredients from './pages/Ingredients';
 import IngredientDetails from './pages/IngredientDetails'
 import CreateIngredient from './pages/CreateIngredient'
@@ -30,8 +33,10 @@ function App() {
       <Navbar/>
 
       <Routes>
+    
         <Route path="/" element={<Home/>}/>
         <Route path="/about" element={<About/>}/>
+        <Route path="/logIn" element={<LogIn/>}/>
 
         <Route path="/ingredients" element={<Ingredients/>}/>
         <Route path="/ingredients/:ingredientId" element={<IngredientDetails/>}/>

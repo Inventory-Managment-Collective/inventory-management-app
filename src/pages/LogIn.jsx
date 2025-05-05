@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { ref, push, set } from 'firebase/database';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       alert("Logged in!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       alert(err.message);
     }
@@ -22,14 +23,54 @@ export default function Login() {
 
   const handleSignup = async () => {
     if (!email || !password) return alert("Please enter both email and password");
+
+    const newUser = {
+      email,
+      password,
+      ingredients: [{category: "Baking", name:"Sugar", quantity:300, unit:"Eggs"}],
+      recipes:["yes"],
+    };
+
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      const usersRef = ref(db, 'users');
+        const newRef = push(usersRef);
+        await set(newRef, newUser);
       alert("Account created!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       alert(err.message);
     }
   };
+
+
+
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      if (!name || !quantity || !unit || !category) {
+        alert('Please fill in all fields.');
+        return;
+      }
+  
+      const newIngredient = {
+        name,
+        quantity: parseFloat(quantity),
+        unit,
+        category,
+      };
+  
+      try {
+        const ingredientsRef = ref(db, 'ingredients');
+        const newRef = push(ingredientsRef);
+        await set(newRef, newIngredient);
+        alert('Ingredient added!');
+        navigate('/ingredients');
+      } catch (error) {
+        console.error('Error adding ingredient:', error);
+        alert('Failed to add ingredient.');
+      }
+    };
 
   return (
     <div>
