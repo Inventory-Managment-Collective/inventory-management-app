@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useEffect } from 'react-router-dom';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -36,8 +36,6 @@ function ResponsiveAppBar() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user || null);
     });
-
-    const auth = getAuth();
 
     useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {

@@ -68,7 +68,12 @@ export default function CreateIngredient() {
         </div>
         <div>
           <label>Unit:</label><br />
-          <input value={unit} onChange={e => setUnit(e.target.value)} required />
+          <select value={unit} onChange={(e) => setUnit(e.target.value)} required>
+            <option value="">Select unit</option>
+            <option value="grams">grams</option>
+            <option value="ml">ml</option>
+            <option value="items">items</option>
+          </select>
         </div>
         <div>
           <label>Category:</label><br />
@@ -78,7 +83,7 @@ export default function CreateIngredient() {
         <button type="submit">Add Ingredient</button>
       </form>
       <br />
-            <Link to="/ingredients">Back</Link>
+      <Link to="/ingredients">Back</Link>
     </div>
   );
 }

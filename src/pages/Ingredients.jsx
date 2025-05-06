@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ref, get, remove } from 'firebase/database';
+import { ref, get, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -68,6 +68,26 @@ export default function Ingredients() {
     ingredient.name.toLowerCase().startsWith(searchTerm.toLowerCase())
   );
 
+  const handleAddStock = async (id, amountToAdd) => {
+    if (!user) return;
+
+    try {
+      const ingredientRef = ref(db, `users/${user.uid}/ingredients/${id}`);
+      const snapshot = await get(ingredientRef);
+      if (snapshot.exists()) {
+        const current = snapshot.val();
+        const updatedQuantity = parseFloat(current.quantity) + amountToAdd;
+        await set(ingredientRef, { ...current, quantity: updatedQuantity });
+        setIngredients(prev =>
+          prev.map(item => item.id === id ? { ...item, quantity: updatedQuantity } : item)
+        );
+      }
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      alert('Failed to update quantity.');
+    }
+  };
+
   return (
     <div>
       <h2>Ingredients List</h2>
@@ -91,6 +111,24 @@ export default function Ingredients() {
               <br />
               <Link to={`/updateIngredient/${ingredient.id}`}>Edit</Link>
               {' '}
+              {ingredient.unit === 'grams' && (
+                <>
+                  <button onClick={() => handleAddStock(ingredient.id, 100)}>+100g</button>
+                  <button onClick={() => handleAddStock(ingredient.id, 500)}>+500g</button>
+                </>
+              )}
+              {ingredient.unit === 'ml' && (
+                <>
+                  <button onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</button>
+                  <button onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</button>
+                </>
+              )}
+              {ingredient.unit === 'items' && (
+                <>
+                  <button onClick={() => handleAddStock(ingredient.id, 1)}>+1</button>
+                  <button onClick={() => handleAddStock(ingredient.id, 6)}>+6</button>
+                </>
+              )}
               <button onClick={() => handleDelete(ingredient.id)}>Delete</button>
             </li>
           ))}

@@ -70,11 +70,14 @@ export default function SignUp() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
+                <div>
+                <label>Profile picture: </label>
                 <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setImageFile(e.target.files[0])}
                 />
+                </div>
                 <button type="button" onClick={handleSignup}>Sign Up</button>
             </form>
             <br />
