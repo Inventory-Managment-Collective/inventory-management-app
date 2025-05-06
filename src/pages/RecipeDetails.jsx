@@ -124,6 +124,8 @@ export default function RecipeDetails() {
       >
         Make Recipe
       </button>
+      <br />
+      <Link to="/recipes">Back</Link>
     </div>
   );
 }

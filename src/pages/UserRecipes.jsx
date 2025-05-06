@@ -130,6 +130,8 @@ export default function UserRecipes() {
             )}
             <br />
             <Link to="/createRecipe">+ Add New Recipe</Link>
+            <br />
+            <Link to="/">Back</Link>
         </div>
     );
 }

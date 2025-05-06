@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged  } from 'firebase/auth';
@@ -166,6 +166,7 @@ export default function UpdateRecipe() {
         <br />
         <button type="submit">Update Recipe</button>
       </form>
+      <Link to={`/userRecipes/${recipeId}`}>Back</Link>
     </div>
   );
 }

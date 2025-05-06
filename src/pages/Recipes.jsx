@@ -64,27 +64,27 @@ export default function Recipes() {
     const handleSave = async (recipeId) => {
         const confirmSave = window.confirm('Are you sure you want to save this recipe?');
         if (!confirmSave) return;
-      
+
         try {
-          const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
-          if (!recipeSnap.exists()) {
-            alert('Recipe not found.');
-            return;
-          }
-      
-          const recipeData = recipeSnap.val();
-      
-          const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
-          const newRef = push(userRecipesRef);
-          await set(newRef, recipeData);
-      
-          alert('Recipe saved to your list!');
-          navigate('/userRecipes');
+            const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
+            if (!recipeSnap.exists()) {
+                alert('Recipe not found.');
+                return;
+            }
+
+            const recipeData = recipeSnap.val();
+
+            const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
+            const newRef = push(userRecipesRef);
+            await set(newRef, recipeData);
+
+            alert('Recipe saved to your list!');
+            navigate('/userRecipes');
         } catch (error) {
-          console.error('Error saving recipe:', error);
-          alert('Failed to save recipe.');
+            console.error('Error saving recipe:', error);
+            alert('Failed to save recipe.');
         }
-      };
+    };
 
 
 
@@ -129,6 +129,8 @@ export default function Recipes() {
             )}
             <br />
             <Link to="/createRecipe">+ Add New Recipe</Link>
+            <br />
+            <Link to="/">Back</Link>
         </div>
     );
 }

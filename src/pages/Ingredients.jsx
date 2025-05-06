@@ -97,6 +97,8 @@ export default function Ingredients() {
         </ul>
       )}
       <Link to="/createIngredient">Add an Ingredient</Link>
+      <br />
+      <Link to="/">Back</Link>
     </div>
   );
 }

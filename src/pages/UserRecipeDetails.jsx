@@ -140,6 +140,8 @@ export default function UserRecipeDetails() {
       >
         Make Recipe
       </button>
+      <br />
+      <Link to="/userRecipes">Back</Link>
     </div>
   );
 }
