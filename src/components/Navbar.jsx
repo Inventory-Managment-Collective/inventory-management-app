@@ -37,6 +37,29 @@ function ResponsiveAppBar() {
       setUser(user || null);
     });
 
+    const auth = getAuth();
+
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          try {
+            const snapshot = await get(ref(db, `users/${firebaseUser.uid}`));
+            if (snapshot.exists()) {
+              setUserProfile(snapshot.val());
+            }
+          } catch (error) {
+            console.error('Error loading profile data:', error);
+          }
+        } else {
+          setUser(null);
+          setUserProfile(null);
+        }
+      });
+
+      return () => unsubscribe();
+    }, []);
+
     return () => unsubscribe();
   }, []);
 
@@ -117,7 +140,7 @@ function ResponsiveAppBar() {
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.email} src="/static/images/avatar/2.jpg" />
+                    <Avatar alt={user.email} src={user.ProfilePicture} />
                   </IconButton>
                 </Tooltip>
                 <Menu
