@@ -21,10 +21,14 @@ export default function Home() {
           <p>Manage your ingredients and recipes.</p>
     
           <ul>
-            <li><Link to="/ingredients">View Ingredients</Link></li>
-            <li><Link to="/recipes">View Recipes</Link></li>
+            <li><Link to="/recipes">View shared Recipes</Link></li>
             {user ? (
-                    <Link to="/userRecipes">See your Recipes</Link>
+                    <li><Link to="/userRecipes">See your Recipes</Link></li>
+                  ) : (
+                    <></>
+                  )}
+            {user ? (
+                    <li><Link to="/ingredients">See your Ingredients</Link></li>
                   ) : (
                     <></>
                   )}

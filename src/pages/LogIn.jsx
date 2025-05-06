@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { ref, push, set } from 'firebase/database';
@@ -90,6 +90,8 @@ export default function Login() {
         <button type="submit">Log In</button>
         <button type="button" onClick={handleSignup}>Sign Up</button>
       </form>
+      <br/>
+      <Link to="/">Back</Link>
     </div>
   );
 }
