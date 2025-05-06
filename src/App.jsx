@@ -29,7 +29,7 @@ function App() {
   const customTheme = createTheme({
     palette: {
       primary: {
-        main: '#1976d2',
+        main: '#abd0f5',
       },
       secondary: {
         main: '#ff4081',
