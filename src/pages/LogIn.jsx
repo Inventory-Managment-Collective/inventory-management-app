@@ -7,7 +7,24 @@ import { ref, push, set } from 'firebase/database';
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+
   const navigate = useNavigate();
+
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", import.meta.env.VITE_UNSIGNED_UPLOAD_PRESET);
+    formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_NAME);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    return data.secure_url;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,54 +40,32 @@ export default function Login() {
 
   const handleSignup = async () => {
     if (!email || !password) return alert("Please enter both email and password");
-  
+
     try {
-      
+
+      let imageUrl = '';
+
+      if (imageFile) {
+        imageUrl = await uploadImageToCloudinary(imageFile);
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const uid = userCredential.user.uid;
-       
+
       const userRef = ref(db, `users/${uid}`);
       await set(userRef, {
         email: email,
+        profilePicture: imageUrl,
         ingredients: {},
         recipes: {}
       });
-  
+
       alert("Account created!");
       navigate("/");
     } catch (err) {
       alert(err.message);
     }
   };
-
-
-
-  const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      if (!name || !quantity || !unit || !category) {
-        alert('Please fill in all fields.');
-        return;
-      }
-  
-      const newIngredient = {
-        name,
-        quantity: parseFloat(quantity),
-        unit,
-        category,
-      };
-  
-      try {
-        const ingredientsRef = ref(db, 'ingredients');
-        const newRef = push(ingredientsRef);
-        await set(newRef, newIngredient);
-        alert('Ingredient added!');
-        navigate('/ingredients');
-      } catch (error) {
-        console.error('Error adding ingredient:', error);
-        alert('Failed to add ingredient.');
-      }
-    };
 
   return (
     <div>
@@ -87,10 +82,16 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
+        />
+
         <button type="submit">Log In</button>
         <button type="button" onClick={handleSignup}>Sign Up</button>
       </form>
-      <br/>
+      <br />
       <Link to="/">Back</Link>
     </div>
   );
