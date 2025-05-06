@@ -1,5 +1,6 @@
+import React from 'react';
 import { Route, Routes } from 'react-router-dom'
-import { useMediaQuery, useTheme } from '@mui/material';
+import { useMediaQuery, useTheme, ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
 import Home from './pages/Home';
 import About from './pages/About'
@@ -22,10 +23,39 @@ import './App.css'
 
 function App() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobileOrTablet = useMediaQuery(theme.breakpoints.down('md'));
+
+  const customTheme = createTheme({
+    palette: {
+      primary: {
+        main: '#1976d2',
+      },
+      secondary: {
+        main: '#ff4081',
+      },
+      background: {
+        default: '#f4f4f4',
+      },
+    },
+    typography: {
+      fontFamily: 'Roboto, Arial, sans-serif',
+      h1: { fontSize: '2.5rem' },
+      button: { textTransform: 'none' },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+          },
+        },
+      },
+    },
+  });
 
   return (
-    <>
+    <ThemeProvider theme={customTheme}>
+      <CssBaseline />
 
       <Navbar />
 
@@ -50,8 +80,8 @@ function App() {
         <Route path='/*' element={<NotFound />} />
       </Routes>
 
-      {isMobile && <BottomNav />}
-    </>
+      {isMobileOrTablet && <BottomNav />}
+    </ThemeProvider>
   )
 }
 
