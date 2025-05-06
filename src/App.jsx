@@ -18,6 +18,7 @@ import UpdateRecipe from './pages/UpdateRecipe'
 import UserRecipes from './pages/UserRecipes';
 import UserRecipeDetails from './pages/UserRecipeDetails';
 import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
 import BottomNav from './components/BottomNav'
 
 import './App.css'
@@ -67,6 +68,7 @@ function App() {
         <Route path="/logIn" element={<LogIn/>}/>
         <Route path="/signUp" element={<SignUp/>}/>
         <Route path="/profile" element={<Profile/>}/>
+        <Route path="/editProfile" element={<EditProfile/>}/>
 
         <Route path="/ingredients" element={<Ingredients />} />
         <Route path="/createIngredient" element={<CreateIngredient />} />
