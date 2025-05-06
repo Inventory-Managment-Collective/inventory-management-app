@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ref, push, set } from 'firebase/database';
 import { auth, db } from '../firebase';
 import { getAuth, onAuthStateChanged  } from 'firebase/auth';
@@ -35,8 +35,13 @@ export default function CreateRecipe() {
     }
 
     const validIngredients = ingredients.filter(
-      ing => ing.name && ing.quantity && ing.unit
+      ing => typeof ing.name === 'string' &&
+             ing.name.trim() !== '' &&
+             !isNaN(parseFloat(ing.quantity)) &&
+             typeof ing.unit === 'string' &&
+             ing.unit.trim() !== ''
     );
+    
 
     const validInstructions = instructions.filter(step => step.trim() !== '');
 
@@ -142,6 +147,8 @@ export default function CreateRecipe() {
         <br />
         <button type="submit">Create Recipe</button>
       </form>
+      <br/>
+      <Link to="/userRecipes">Back</Link>
     </div>
   );
 }
