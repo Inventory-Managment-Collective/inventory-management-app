@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { ref, get, child, remove, push, set } from 'firebase/database';
 import { db } from '../firebase';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
+    const [userRecipes, setUserRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
 
+    const navigate = useNavigate();
     const auth = getAuth();
 
     useEffect(() => {
@@ -22,9 +24,7 @@ export default function Recipes() {
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const dbRef = ref(db);
-                const snapshot = await get(child(dbRef, 'recipes'));
-
+                const snapshot = await get(ref(db, 'recipes'));
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const items = Object.entries(data).map(([id, value]) => ({
@@ -45,6 +45,26 @@ export default function Recipes() {
         fetchRecipes();
     }, []);
 
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchUserRecipes = async () => {
+            try {
+                const snapshot = await get(ref(db, `users/${user.uid}/recipes`));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const savedIds = Object.values(data).map(recipe => recipe.name?.toLowerCase());
+                    setUserRecipes(savedIds);
+                } else {
+                    setUserRecipes([]);
+                }
+            } catch (error) {
+                console.error('Error fetching user saved recipes:', error);
+            }
+        };
+
+        fetchUserRecipes();
+    }, [user]);
 
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
@@ -59,8 +79,6 @@ export default function Recipes() {
         }
     };
 
-
-
     const handleSave = async (recipeId) => {
         const confirmSave = window.confirm('Are you sure you want to save this recipe?');
         if (!confirmSave) return;
@@ -73,7 +91,6 @@ export default function Recipes() {
             }
 
             const recipeData = recipeSnap.val();
-
             const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
             const newRef = push(userRecipesRef);
             await set(newRef, recipeData);
@@ -86,8 +103,6 @@ export default function Recipes() {
         }
     };
 
-
-
     if (loading) return <p>Loading recipes...</p>;
 
     return (
@@ -97,34 +112,45 @@ export default function Recipes() {
                 <p>No recipes found.</p>
             ) : (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {recipes.map(recipe => (
-                        <div
-                            key={recipe.id}
-                            style={{
-                                border: '1px solid #ccc',
-                                borderRadius: '8px',
-                                padding: '1rem',
-                                width: '250px',
-                            }}
-                        >
-                            <img
-                                src={recipe.imageUrl}
-                                alt={recipe.name}
-                                style={{ width: '100%', borderRadius: '4px' }}
-                            />
-                            <h3>{recipe.name}</h3>
-                            <p>{recipe.ingredients?.length || 0} ingredients</p>
-                            <Link to={`/recipes/${recipe.id}`}>View Recipe</Link>
-                            {' '}
-                            <button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
-                                Delete
-                            </button>
-                            {' '}
-                            <button onClick={() => handleSave(recipe.id)} style={{ color: 'green' }}>
-                                Save
-                            </button>
-                        </div>
-                    ))}
+                    {recipes.map(recipe => {
+                        const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
+
+                        return (
+                            <div
+                                key={recipe.id}
+                                style={{
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    padding: '1rem',
+                                    width: '250px',
+                                }}
+                            >
+                                <img
+                                    src={recipe.imageUrl}
+                                    alt={recipe.name}
+                                    style={{ width: '100%', borderRadius: '4px' }}
+                                />
+                                <h3>{recipe.name}</h3>
+                                <p>{recipe.ingredients?.length || 0} ingredients</p>
+                                <Link to={`/recipes/${recipe.id}`}>View Recipe</Link>{' '}
+                                {' '}
+                                {user && (
+                                    <button
+                                        onClick={() => handleSave(recipe.id)}
+                                        disabled={alreadySaved}
+                                        style={{
+                                            color: alreadySaved ? 'gray' : 'green',
+                                            cursor: alreadySaved ? 'not-allowed' : 'pointer',
+                                            opacity: alreadySaved ? 0.5 : 1
+                                        }}
+                                    >
+                                        {alreadySaved ? 'Saved' : 'Save'}
+                                    </button>
+                                )}
+
+                            </div>
+                        );
+                    })}
                 </div>
             )}
             <br />
