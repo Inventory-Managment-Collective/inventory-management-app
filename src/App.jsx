@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import About from './pages/About'
 import NotFound from './pages/NotFound'
 import LogIn from './pages/LogIn';
+import SignUp from './pages/SignUp';
 import Navbar from './components/Navbar'
 import Ingredients from './pages/Ingredients';
 import CreateIngredient from './pages/CreateIngredient'
@@ -64,6 +65,7 @@ function App() {
         <Route path="/" element={<Home/>}/>
         <Route path="/about" element={<About/>}/>
         <Route path="/logIn" element={<LogIn/>}/>
+        <Route path="/signUp" element={<SignUp/>}/>
         <Route path="/profile" element={<Profile/>}/>
 
         <Route path="/ingredients" element={<Ingredients />} />
