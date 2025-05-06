@@ -14,45 +14,53 @@ export default function BottomNavi() {
     const [value, setValue] = React.useState(0);
   
     React.useEffect(() => {
-      if (location.pathname.startsWith('/') && !location.pathname.startsWith('/userRecipes')) {
-        setValue(0);
-      } else if (location.pathname.startsWith('/userRecipes')) {
-        setValue(1);
-      } else if (location.pathname === '/ingredients') {
-        setValue(2);
-      }
-    }, [location]);
+        if (location.pathname.startsWith('/recipes')) {
+          setValue(0);
+        } else if (location.pathname.startsWith('/userRecipes')) {
+          setValue(1);
+        } else if (location.pathname.startsWith('/ingredients')) {
+          setValue(2);
+        } else {
+          setValue(-1);
+        }
+      }, [location]);
   
     return (
       <Box sx={{ pb: 7 }}>
         <CssBaseline />
         <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
-          <BottomNavigation
-            showLabels
-            value={value}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
-          >
-            <BottomNavigationAction
-              label="Recipes"
-              icon={<MenuBookIcon />}
-              component={Link}
-              to="/recipes"
-            />
-            <BottomNavigationAction
-              label="Your Recipes"
-              icon={<BookmarkIcon />}
-              component={Link}
-              to="/userRecipes"
-            />
-            <BottomNavigationAction
-              label="Ingredients"
-              icon={<RestaurantMenuIcon />}
-              component={Link}
-              to="/ingredients"
-            />
-          </BottomNavigation>
+        <BottomNavigation
+  showLabels
+  value={value}
+  onChange={(event, newValue) => {
+    setValue(newValue);
+  }}
+>
+  <BottomNavigationAction
+    label="Recipes"
+    icon={<MenuBookIcon />}
+    component={Link}
+    to="/recipes"
+    value={0}
+    sx={{ '&.Mui-selected': { color: 'primary.main' } }}
+  />
+  <BottomNavigationAction
+    label="Your Recipes"
+    icon={<BookmarkIcon />}
+    component={Link}
+    to="/userRecipes"
+    value={1}
+    sx={{ '&.Mui-selected': { color: 'primary.main' } }}
+  />
+  <BottomNavigationAction
+    label="Ingredients"
+    icon={<RestaurantMenuIcon />}
+    component={Link}
+    to="/ingredients"
+    value={2}
+    sx={{ '&.Mui-selected': { color: 'primary.main' } }}
+  />
+</BottomNavigation>
         </Paper>
       </Box>
     );
