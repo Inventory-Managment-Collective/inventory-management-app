@@ -6,13 +6,28 @@ import { getAuth, onAuthStateChanged  } from 'firebase/auth';
 
 export default function CreateRecipe() {
   const [name, setName] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [instructions, setInstructions] = useState(['']);
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const auth = getAuth();
+
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", import.meta.env.VITE_UNSIGNED_UPLOAD_PRESET);
+    formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_NAME);
+
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    return data.secure_url;
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -29,10 +44,16 @@ export default function CreateRecipe() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !imageUrl || instructions.length === 0 || ingredients.length === 0) {
+    if (!name || instructions.length === 0 || ingredients.length === 0) {
       alert('Please fill in all fields.');
       return;
     }
+
+    let imageUrl = '';
+
+      if (imageFile) {
+        imageUrl = await uploadImageToCloudinary(imageFile);
+      }
 
     const validIngredients = ingredients.filter(
       ing => typeof ing.name === 'string' &&
@@ -97,7 +118,11 @@ export default function CreateRecipe() {
 
         <div>
           <label>Image URL:</label><br />
-          <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} required />
+          <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
+        />
         </div>
 
         <div>
