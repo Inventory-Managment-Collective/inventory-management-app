@@ -29,6 +29,7 @@ export default function RecipeDetails() {
 
     fetchRecipe();
   }, [recipeId]);
+  
 
   if (loading) return <p>Loading recipe...</p>;
   if (!recipe) return <p>Recipe not found.</p>;

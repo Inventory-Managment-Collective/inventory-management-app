@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Button } from '@mui/material';
+import TestSecurity from '../components/TestSecurity';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
