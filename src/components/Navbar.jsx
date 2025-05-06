@@ -33,6 +33,7 @@ export default function Navbar() {
       {user ? (
         <>
           <p>Welcome, {user.email}</p>
+          <Link to="/profile">Profile</Link>
           <button onClick={handleLogout}>Log Out</button>
         </>
       ) : (

@@ -25,6 +25,7 @@ import UpdateRecipe from './pages/UpdateRecipe'
 
 import UserRecipes from './pages/UserRecipes';
 import UserRecipeDetails from './pages/UserRecipeDetails';
+import Profile from './pages/Profile';
 
 
 import Navbar from './components/Navbar'
@@ -41,6 +42,7 @@ function App() {
         <Route path="/" element={<Home/>}/>
         <Route path="/about" element={<About/>}/>
         <Route path="/logIn" element={<LogIn/>}/>
+        <Route path="/profile" element={<Profile/>}/>
 
         <Route path="/ingredients" element={<Ingredients/>}/>
         <Route path="/createIngredient" element={<CreateIngredient/>}/>

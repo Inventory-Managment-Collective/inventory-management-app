@@ -3,6 +3,7 @@ import { ref, get, child, push, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Button } from '@mui/material';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -116,13 +117,13 @@ export default function UserRecipes() {
                             <p>{recipe.ingredients?.length || 0} ingredients</p>
                             <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
                             {' '}
-                            <button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
+                            <Button  onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
                                 Delete
-                            </button>
+                            </Button>
                             {' '}
-                            <button onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
+                            <Button variant="contained" onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
                                 Share
-                            </button>
+                            </Button>
 
                         </div>
                     ))}
