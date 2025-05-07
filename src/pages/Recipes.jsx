@@ -141,7 +141,7 @@ export default function Recipes() {
                 const recipeData = recipeSnap.val();
 
                 const newRef = ref(db, `users/${user.uid}/recipes/${recipeId}`);
-                await set(newRef, { ...recipeData, id: recipeId });
+                await set(newRef, { ...recipeData, id: recipeId, source: "global" });
 
 
                 setUserRecipes(prev => [...prev, recipeId]);

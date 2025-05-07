@@ -82,6 +82,7 @@ export default function CreateRecipe() {
         quantity: parseFloat(ing.quantity),
         unit: ing.unit,
       })),
+      source: "user"  // Adding the source flag
     };
 
     try {

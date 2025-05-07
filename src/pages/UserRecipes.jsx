@@ -105,25 +105,30 @@ export default function UserRecipes() {
 
     const handleShare = async (recipeId) => {
         try {
-            const globalRecipesRef = ref(db, 'recipes');
+            const userRecipeRef = ref(db, `users/${user.uid}/recipes/${recipeId}`);
+            const userRecipeSnap = await get(userRecipeRef);
 
+            if (!userRecipeSnap.exists()) {
+                alert('Recipe not found.');
+                return;
+            }
+
+            const recipeData = userRecipeSnap.val();
+
+            if (recipeData.source === "global") {
+                alert("You cannot share or unshare a recipe you didn't create.");
+                return;
+            }
+
+            const globalRecipeRef = ref(db, `recipes/${recipeId}`);
             const isShared = sharedRecipes.includes(recipeId);
 
             if (isShared) {
-                await remove(ref(db, `recipes/${recipeId}`));
+                await remove(globalRecipeRef);
                 setSharedRecipes(prev => prev.filter(id => id !== recipeId));
                 alert('Recipe unshared successfully!');
             } else {
-                const userRecipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
-
-                if (!userRecipeSnap.exists()) {
-                    alert('Recipe not found.');
-                    return;
-                }
-
-                const recipeData = userRecipeSnap.val();
-                await set(ref(db, `recipes/${recipeId}`), recipeData);
-
+                await set(globalRecipeRef, recipeData);
                 setSharedRecipes(prev => [...prev, recipeId]);
                 alert('Recipe shared successfully!');
             }
@@ -133,6 +138,7 @@ export default function UserRecipes() {
             alert('Failed to share/unshare recipe.');
         }
     };
+
 
     //functionality for the user to share a recipe. functions very similarly to handleSave but the paths for get and 
     //push are swapped around.
@@ -246,26 +252,28 @@ export default function UserRecipes() {
                                                     <DeleteIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
                                                     <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Delete</Box>
                                                 </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color={sharedRecipes.includes(recipe.id) ? "secondary" : "success"}
-                                                    onClick={() => handleShare(recipe.id)}
-                                                    size="small"
-                                                    sx={{
-                                                        paddingX: sharedRecipes.includes(recipe.id) ? 1.5 : 2.5,
-                                                        backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.dark' : 'secondary.main',
-                                                        '&:hover': {
-                                                            backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.main' : 'secondary.dark',
-                                                        },
-                                                    }}
-                                                >
-                                                    <IosShareIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
+                                                {recipe.source === "user" && (
+                                                    <Button
+                                                        variant="contained"
+                                                        color={sharedRecipes.includes(recipe.id) ? "secondary" : "success"}
+                                                        onClick={() => handleShare(recipe.id)}
+                                                        size="small"
+                                                        sx={{
+                                                            paddingX: sharedRecipes.includes(recipe.id) ? 1.5 : 2.5,
+                                                            backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.dark' : 'secondary.main',
+                                                            '&:hover': {
+                                                                backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.main' : 'secondary.dark',
+                                                            },
+                                                        }}
+                                                    >
+                                                        <IosShareIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
                                                     {sharedRecipes.includes(recipe.id) ? (
                                                         <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Unshare</Box>
                                                     ) : (
                                                         <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Share</Box>
                                                     )}
-                                                </Button>
+                                                    </Button>
+                                                )}
 
                                             </Box>
                                         </Box>
