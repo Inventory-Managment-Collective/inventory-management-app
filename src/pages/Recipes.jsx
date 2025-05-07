@@ -265,20 +265,41 @@ export default function Recipes() {
                                                     <Button
                                                         size="small"
                                                         variant="contained"
-                                                        color={alreadySaved ? 'inherit' : 'success'}
+                                                        color={alreadySaved ? 'primary' : 'success'}
                                                         onClick={() => handleSave(recipe.id)}
                                                         disabled={alreadySaved}
+                                                        sx={{
+                                                            backgroundColor: alreadySaved ? 'primary.main' : 'success.main',
+                                                            '&:hover': {
+                                                                backgroundColor: alreadySaved ? 'primary.dark' : 'success.dark',
+                                                            },
+                                                            '&.Mui-disabled': {
+                                                                backgroundColor: alreadySaved ? 'primary.main' : 'success.main',
+                                                                opacity: 1,
+                                                                color: alreadySaved ? 'white' : 'white',
+                                                            },
+                                                        }}
                                                     >
                                                         {alreadySaved ? 'Saved' : 'Save'}
                                                     </Button>
+
                                                     <Button
                                                         size="small"
                                                         onClick={() => handleLike(recipe.id)}
                                                         disabled={alreadyLiked}
                                                         sx={{
-                                                            color: alreadyLiked ? 'gray' : 'blue',
+                                                            backgroundColor: alreadyLiked ? 'red' : 'transparent',
+                                                            color: alreadyLiked ? 'white' : 'red',
                                                             cursor: alreadyLiked ? 'not-allowed' : 'pointer',
                                                             opacity: alreadyLiked ? 0.5 : 1,
+                                                            '&:hover': {
+                                                                backgroundColor: alreadyLiked ? 'red' : 'darkred',
+                                                                color: 'white',
+                                                            },
+                                                            '&.Mui-disabled': {
+                                                                backgroundColor: 'red',
+                                                                color: 'white',
+                                                            },
                                                         }}
                                                     >
                                                         <FavoriteIcon sx={{ fontSize: 20, mr: 1 }} />
@@ -286,6 +307,7 @@ export default function Recipes() {
                                                     </Button>
                                                 </>
                                             )}
+
                                         </CardActions>
                                     </Card>
                                 </Grid>
