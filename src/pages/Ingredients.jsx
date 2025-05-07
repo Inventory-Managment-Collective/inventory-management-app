@@ -101,6 +101,7 @@ export default function Ingredients() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <Link to="/createIngredient">Add an Ingredient</Link>
 
           {ingredients.length === 0 ? (
             <p>No ingredients found.</p>
@@ -139,7 +140,6 @@ export default function Ingredients() {
                 ))}
             </ul>
           )}
-          <Link to="/createIngredient">Add an Ingredient</Link>
         </>
       ) : (
         <div>

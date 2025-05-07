@@ -95,39 +95,38 @@ export default function UserRecipes() {
                 recipes.length === 0 ? (
                     <p>No recipes found.</p>
                 ) : (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                        {recipes.map(recipe => (
-                            <div
-                                key={recipe.id}
-                                style={{
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    padding: '1rem',
-                                    width: '250px',
-                                }}
-                            >
-                                <img
-                                    src={recipe.imageUrl}
-                                    alt={recipe.name}
-                                    style={{ width: '100%', borderRadius: '4px' }}
-                                />
-                                <h3>{recipe.name}</h3>
-                                <p>{recipe.ingredients?.length || 0} ingredients</p>
-                                <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
-                                {' '}
-                                <Button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
-                                    Delete
-                                </Button>
-                                {' '}
-                                <Button variant="contained" onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
-                                    Share
-                                </Button>
-                                <br />
-                                <Link to="/createRecipe">+ Add New Recipe</Link>
-                                <br />
-                                <Link to="/">Back</Link>
-                            </div>
-                        ))}
+                    <div>
+                        <Link to="/createRecipe">+ Add New Recipe</Link>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                            {recipes.map(recipe => (
+                                <div
+                                    key={recipe.id}
+                                    style={{
+                                        border: '1px solid #ccc',
+                                        borderRadius: '8px',
+                                        padding: '1rem',
+                                        width: '250px',
+                                    }}
+                                >
+                                    <img
+                                        src={recipe.imageUrl}
+                                        alt={recipe.name}
+                                        style={{ width: '100%', borderRadius: '4px' }}
+                                    />
+                                    <h3>{recipe.name}</h3>
+                                    <p>{recipe.ingredients?.length || 0} ingredients</p>
+                                    <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
+                                    {' '}
+                                    <Button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
+                                        Delete
+                                    </Button>
+                                    {' '}
+                                    <Button variant="contained" onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
+                                        Share
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )
             ) : (
