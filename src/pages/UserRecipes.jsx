@@ -23,6 +23,7 @@ export default function UserRecipes() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [sharedRecipes, setSharedRecipes] = useState([]);
 
     const auth = getAuth();
 
@@ -32,6 +33,25 @@ export default function UserRecipes() {
             setLoading(false);
         });
         return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const fetchSharedRecipes = async () => {
+            try {
+                const snapshot = await get(ref(db, 'recipes'));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const sharedIds = Object.keys(data);
+                    setSharedRecipes(sharedIds);
+                } else {
+                    setSharedRecipes([]);
+                }
+            } catch (error) {
+                console.error('Error fetching shared recipes:', error);
+            }
+        };
+
+        fetchSharedRecipes();
     }, []);
 
     useEffect(() => {
@@ -82,27 +102,39 @@ export default function UserRecipes() {
     //but uses the path to a particular recipe instead of an ingredient
 
     const handleShare = async (recipeId) => {
-        const confirmShare = window.confirm('Do you want to share this recipe globally?');
-        if (!confirmShare) return;
-
         try {
-            const userRecipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
-            if (!userRecipeSnap.exists()) {
-                alert('Recipe not found.');
-                return;
+            const globalRecipesRef = ref(db, 'recipes');
+
+            // Check if the recipe is already shared
+            const isShared = sharedRecipes.includes(recipeId);
+
+            if (isShared) {
+                // Unshare the recipe
+                await remove(ref(db, `recipes/${recipeId}`));
+                setSharedRecipes(prev => prev.filter(id => id !== recipeId));
+                alert('Recipe unshared successfully!');
+            } else {
+                // Share the recipe
+                const userRecipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
+
+                if (!userRecipeSnap.exists()) {
+                    alert('Recipe not found.');
+                    return;
+                }
+
+                const recipeData = userRecipeSnap.val();
+                await set(ref(db, `recipes/${recipeId}`), recipeData);
+
+                setSharedRecipes(prev => [...prev, recipeId]);
+                alert('Recipe shared successfully!');
             }
 
-            const recipeData = userRecipeSnap.val();
-            const globalRecipesRef = ref(db, 'recipes');
-            const newRef = push(globalRecipesRef);
-            await set(newRef, recipeData);
-
-            alert('Recipe shared successfully!');
         } catch (error) {
-            console.error('Error sharing recipe:', error);
-            alert('Failed to share recipe.');
+            console.error('Error sharing/unsharing recipe:', error);
+            alert('Failed to share/unshare recipe.');
         }
     };
+
     //functionality for the user to share a recipe. functions very similarly to handleSave but the paths for get and 
     //push are swapped around.
 
@@ -195,12 +227,19 @@ export default function UserRecipes() {
                                                 </Button>
                                                 <Button
                                                     variant="contained"
-                                                    color="secondary"
+                                                    color={sharedRecipes.includes(recipe.id) ? "secondary" : "success"}
                                                     onClick={() => handleShare(recipe.id)}
                                                     size="small"
+                                                    sx={{
+                                                        backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.main' : 'success.main',
+                                                        '&:hover': {
+                                                            backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.dark' : 'success.dark',
+                                                        },
+                                                    }}
                                                 >
-                                                    Share
+                                                    {sharedRecipes.includes(recipe.id) ? 'Unshare' : 'Share'}
                                                 </Button>
+
                                             </Box>
                                         </Box>
 
