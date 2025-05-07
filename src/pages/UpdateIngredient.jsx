@@ -79,7 +79,9 @@ export default function UpdateIngredient() {
     }
   };
   //functionality which will actually update the ingredient in the databse once the form is
-  //submitted. 
+  //submitted. constructs an updatedData object with the data provided to the form. it will then call
+  //update with the path to the ingredient we are updating and the updatedData object to update the 
+  //ingredient with the content in the form
 
   if (loading) return <p>Loading ingredient...</p>;
 

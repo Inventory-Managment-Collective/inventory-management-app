@@ -19,7 +19,8 @@ import UserRecipes from './pages/UserRecipes';
 import UserRecipeDetails from './pages/UserRecipeDetails';
 import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
-import BottomNav from './components/BottomNav'
+import BottomNav from './components/BottomNav';
+import RecipeInstructionDetails from './pages/RecipeInstructionsDetails';
 
 import './App.css'
 
@@ -80,6 +81,7 @@ function App() {
         <Route path="/updateRecipe/:recipeId" element={<UpdateRecipe />} />
         <Route path="/userRecipes" element={<UserRecipes />} />
         <Route path="/userRecipes/:recipeId" element={<UserRecipeDetails />} />
+        <Route path="/userRecipes/:recipeId/recipeInstrcutions" element={<RecipeInstructionDetails/>}/>
 
         <Route path='/*' element={<NotFound />} />
       </Routes>

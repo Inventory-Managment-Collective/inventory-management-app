@@ -90,7 +90,6 @@ export default function UserRecipeDetails() {
       await update(ref(db), updates);
       alert('Recipe made! Inventory updated.');
 
-      // Refresh ingredient stock
       const updatedSnap = await get(ref(db, `users/${user.uid}/ingredients`));
       if (updatedSnap.exists()) {
         const updatedData = updatedSnap.val();
@@ -145,15 +144,20 @@ export default function UserRecipeDetails() {
 
       <Link to={`/updateRecipe/${recipeId}`}>Edit Recipe</Link>
       <br />
-      <button
+      <Link to={`/userRecipes/${recipeId}/recipeInstrcutions`}>Make dish</Link>
+      <br />
+      <Link to="/userRecipes">Back</Link>
+    </div>
+  );
+}
+
+
+/*
+<button
         onClick={handleMakeRecipe}
         disabled={!canMakeRecipe()}
         style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}
       >
         Make Recipe
       </button>
-      <br />
-      <Link to="/userRecipes">Back</Link>
-    </div>
-  );
-}
+*/
