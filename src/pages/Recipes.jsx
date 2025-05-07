@@ -66,19 +66,6 @@ export default function Recipes() {
         fetchUserRecipes();
     }, [user]);
 
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
-        if (!confirmDelete) return;
-
-        try {
-            await remove(ref(db, `recipes/${id}`));
-            setRecipes(prev => prev.filter(recipe => recipe.id !== id));
-        } catch (error) {
-            console.error('Error deleting recipe:', error);
-            alert('Failed to delete recipe.');
-        }
-    };
-
     const handleSave = async (recipeId) => {
         const confirmSave = window.confirm('Are you sure you want to save this recipe?');
         if (!confirmSave) return;

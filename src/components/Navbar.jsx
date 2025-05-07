@@ -2,7 +2,8 @@ import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
-
+import { ref, get, remove } from 'firebase/database';
+import { db } from '../firebase';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -30,15 +31,30 @@ const settings = [
 function ResponsiveAppBar() {
   const [user, setUser] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [userProfile, setUserProfile] = React.useState(null);
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user || null);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        try {
+          const snapshot = await get(ref(db, `users/${firebaseUser.uid}`));
+          if (snapshot.exists()) {
+            setUserProfile(snapshot.val());
+          }
+        } catch (error) {
+          console.error('Error loading profile data:', error);
+        }
+      } else {
+        setUser(null);
+        setUserProfile(null);
+      }
     });
 
     return () => unsubscribe();
   }, []);
+
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -121,7 +137,10 @@ function ResponsiveAppBar() {
             <>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt={user.email} src="/static/images/avatar/2.jpg" />
+                  <Avatar
+                    alt={user.email}
+                    src={userProfile && userProfile.profilePicture ? userProfile.profilePicture : ''}
+                  />
                 </IconButton>
               </Tooltip>
               <Menu
