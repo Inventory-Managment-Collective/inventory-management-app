@@ -10,10 +10,12 @@ import {
     Container,
     Typography,
     Grid,
-    Paper,
     CardMedia,
     Card,
 } from '@mui/material';
+
+import IosShareIcon from '@mui/icons-material/IosShare';
+import DeleteIcon from '@mui/icons-material/Delete';
 //This functions very similarly to Recipes except no like button, save is replaced with share
 //and the user can delete a recipe or view recipe if they choose so.
 
@@ -173,13 +175,13 @@ export default function UserRecipes() {
                     {filteredRecipes.length === 0 ? (
                         <Typography align="center">No recipes found.</Typography>
                     ) : (
-                        <Grid container spacing={3}>
+                        <Grid container spacing={1.5}>
                             {filteredRecipes.map((recipe) => (
                                 <Grid item xs={12} sm={6} md={4} key={recipe.id}>
                                     <Card
                                         sx={{
-                                            height: 380,
-                                            width: 380,
+                                            height: 390,
+                                            width: 420,
                                             display: 'flex',
                                             flexDirection: 'column',
                                             justifyContent: 'space-between',
@@ -210,6 +212,15 @@ export default function UserRecipes() {
                                                 to={`/userRecipes/${recipe.id}`}
                                                 variant="outlined"
                                                 size="small"
+                                                sx={{
+                                                    paddingX:2,
+                                                    paddingY: 1,
+                                                    '&:hover': {
+                                                            backgroundColor:'primary.main',
+                                                            borderColor: 'primary.main',
+                                                            color: 'white',
+                                                        },
+                                                }}
                                             >
                                                 View
                                             </Button>
@@ -219,7 +230,17 @@ export default function UserRecipes() {
                                                     color="error"
                                                     variant="outlined"
                                                     size="small"
+                                                    sx={{
+                                                        paddingX:2,
+                                                        paddingY: 1,
+                                                        '&:hover': {
+                                                            backgroundColor:'lightpink',
+                                                            borderColor: 'lightpink',
+                                                            color: 'white',
+                                                        },
+                                                    }}
                                                 >
+                                                    <DeleteIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
                                                     Delete
                                                 </Button>
                                                 <Button
@@ -228,12 +249,14 @@ export default function UserRecipes() {
                                                     onClick={() => handleShare(recipe.id)}
                                                     size="small"
                                                     sx={{
-                                                        backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.main' : 'success.main',
+                                                        paddingX:  sharedRecipes.includes(recipe.id) ? 1.5 : 2.5,
+                                                        backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.dark' : 'secondary.main',
                                                         '&:hover': {
-                                                            backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.dark' : 'success.dark',
+                                                            backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.main' : 'secondary.dark',
                                                         },
                                                     }}
                                                 >
+                                                    <IosShareIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
                                                     {sharedRecipes.includes(recipe.id) ? 'Unshare' : 'Share'}
                                                 </Button>
 
