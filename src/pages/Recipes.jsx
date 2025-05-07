@@ -3,14 +3,10 @@ import { ref, get, remove, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import TextField from '@mui/material/TextField';
-//Imports for all the stuff we need for the page, useEffect and useState hooks,
-//ref, get, push and set firebase databse for communicating with teh RTDB
-//Link for navigation aswell as useNavigate and get Auth and AuthStateChange methods to
-//keep track of the currently logged in user.
 
 import {
     Container,
+    TextField,
     Grid,
     Card,
     CardMedia,
@@ -23,6 +19,14 @@ import {
 } from '@mui/material';
 
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import ArchiveIcon from '@mui/icons-material/Archive';
+
+//Imports for all the stuff we need for the page, useEffect and useState hooks,
+//ref, get, push and set firebase databse for communicating with teh RTDB
+//Link for navigation aswell as useNavigate and get Auth and AuthStateChange methods to
+//keep track of the currently logged in user.
+
+
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
@@ -120,7 +124,6 @@ export default function Recipes() {
             await set(newRef, recipeData);
 
             alert('Recipe saved to your list!');
-            navigate('/userRecipes');
         } catch (error) {
             console.error('Error saving recipe:', error);
             alert('Failed to save recipe.');
@@ -222,7 +225,7 @@ export default function Recipes() {
                 </Typography>
             ) : (
                 <Box display="flex" justifyContent="center" sx={{ width: '100%' }}>
-                    <Grid container spacing={2} justifyContent="flex-start" sx={{ width: '100%' }}>
+                    <Grid container spacing={1} justifyContent="flex-start" sx={{ width: '100%' }}>
                         {filteredRecipes.map((recipe) => {
                             const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
                             const alreadyLiked = recipe.likedBy?.[user?.uid];
@@ -239,8 +242,8 @@ export default function Recipes() {
                                 >
                                     <Card
                                         sx={{
-                                            height: 280,
-                                            width: 280,
+                                            height: 300,
+                                            width: 380,
                                             display: 'flex',
                                             flexDirection: 'column',
                                         }}
@@ -266,12 +269,15 @@ export default function Recipes() {
                                                 {recipe.ingredients?.length || 0} ingredients
                                             </Typography>
                                         </CardContent>
-                                        <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
-                                            <Button size="small" component={RouterLink} to={`/recipes/${recipe.id}`}>
-                                                View
-                                            </Button>
+                                        <CardActions sx={{ px: 2, justifyContent: 'space-between', display: 'flex' }}>
+                                            <Box>
+                                                <Button size="small" component={RouterLink} to={`/recipes/${recipe.id}`}>
+                                                    View
+                                                </Button>
+                                            </Box>
+
                                             {user && (
-                                                <>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     <Button
                                                         size="small"
                                                         variant="contained"
@@ -279,17 +285,20 @@ export default function Recipes() {
                                                         onClick={() => handleSave(recipe.id)}
                                                         disabled={alreadySaved}
                                                         sx={{
-                                                            backgroundColor: alreadySaved ? 'primary.main' : 'success.main',
+                                                            paddingX: alreadySaved ? 2 : 2.5,
+                                                            paddingY: 1,
+                                                            backgroundColor: alreadySaved ? 'blue' : 'primary.main',
                                                             '&:hover': {
-                                                                backgroundColor: alreadySaved ? 'primary.dark' : 'success.dark',
+                                                                backgroundColor: alreadySaved ? 'success.main' : 'success.dark',
                                                             },
                                                             '&.Mui-disabled': {
-                                                                backgroundColor: alreadySaved ? 'primary.main' : 'success.main',
+                                                                backgroundColor: alreadySaved ? 'primary.dark' : 'success.main',
                                                                 opacity: 1,
-                                                                color: alreadySaved ? 'white' : 'white',
+                                                                color: 'white',
                                                             },
                                                         }}
                                                     >
+                                                        <ArchiveIcon sx={{ fontSize: 18, mr: 1 }} />
                                                         {alreadySaved ? 'Saved' : 'Save'}
                                                     </Button>
 
@@ -297,28 +306,27 @@ export default function Recipes() {
                                                         size="small"
                                                         onClick={() => handleLike(recipe.id)}
                                                         sx={{
-                                                            backgroundColor: alreadyLiked ? 'darkred' : 'lightcoral',
-                                                            color: 'white',
+                                                            paddingX: alreadyLiked ? 2 : 2.5,
+                                                            paddingY: 1,
+                                                            backgroundColor: alreadyLiked ? 'secondary.main' : 'transparent',
+                                                            color: alreadyLiked ? 'white' : 'secondary.main',
                                                             cursor: 'pointer',
                                                             '&:hover': {
-                                                                backgroundColor: alreadyLiked ? '#a50000' : '#ff7f7f', 
+                                                                backgroundColor: alreadyLiked ? 'secondary.dark' : 'transparent',
                                                             },
                                                         }}
                                                     >
-                                                        <FavoriteIcon sx={{ fontSize: 20, mr: 1 }} />
-                                                        {alreadyLiked ? 'Unlike' : 'Like'}
+                                                        <FavoriteIcon sx={{ fontSize: 18, mr: 1 }} />
+                                                        {alreadyLiked ? 'Liked' : 'Like'}
                                                     </Button>
 
-
-
-                                                    <Typography variant="body2" sx={{ ml: 1 }}>
+                                                    <Typography variant="body2" color='skyblue' border='1px solid skyblue' borderRadius={2} paddingX={1} paddingY={1}>
                                                         {recipe.likes || 0} Likes
                                                     </Typography>
-
-                                                </>
+                                                </Box>
                                             )}
-
                                         </CardActions>
+
                                     </Card>
                                 </Grid>
                             );
