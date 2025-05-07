@@ -3,7 +3,17 @@ import { ref, get, child, push, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Button, TextField, Box } from '@mui/material';
+import {
+    Button,
+    TextField,
+    Box,
+    Container,
+    Typography,
+    Grid,
+    Paper,
+    CardMedia,
+    Card,
+} from '@mui/material';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -18,7 +28,6 @@ export default function UserRecipes() {
             setUser(firebaseUser);
             setLoading(false);
         });
-
         return () => unsubscribe();
     }, []);
 
@@ -89,12 +98,15 @@ export default function UserRecipes() {
     const filteredRecipes = recipes.filter(recipe =>
         recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
     );
-    
-    if (loading) return <p>Loading recipes...</p>;
+
+    if (loading) return <Typography variant="h6" align="center">Loading recipes...</Typography>;
 
     return (
-        <div>
-            <h2>Recipes</h2>
+        <Container maxWidth="md" sx={{ py: 6 }}>
+            <Typography variant="h4" gutterBottom align="center">
+                Your Recipes
+            </Typography>
+
             {user ? (
                 <>
                     <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
@@ -103,59 +115,104 @@ export default function UserRecipes() {
                             variant="outlined"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            sx={{ width: '300px' }}
+                            sx={{ width: '100%', maxWidth: 400 }}
                         />
                     </Box>
 
-                    <Link to="/createRecipe">+ Add New Recipe</Link>
+                    <Box sx={{ mb: 3, textAlign: 'center' }}>
+                        <Button
+                            component={Link}
+                            to="/createRecipe"
+                            variant="contained"
+                            color="primary"
+                        >
+                            + Add New Recipe
+                        </Button>
+                    </Box>
 
                     {filteredRecipes.length === 0 ? (
-                        <p>No recipes found.</p>
+                        <Typography align="center">No recipes found.</Typography>
                     ) : (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                            {filteredRecipes.map(recipe => (
-                                <div
-                                    key={recipe.id}
-                                    style={{
-                                        border: '1px solid #ccc',
-                                        borderRadius: '8px',
-                                        padding: '1rem',
-                                        width: '250px',
-                                    }}
-                                >
-                                    <img
-                                        src={recipe.imageUrl}
-                                        alt={recipe.name}
-                                        style={{ width: '100%', borderRadius: '4px' }}
-                                    />
-                                    <h3>{recipe.name}</h3>
-                                    <p>{recipe.ingredients?.length || 0} ingredients</p>
-                                    <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
-                                    {' '}
-                                    <Button onClick={() => handleDelete(recipe.id)} sx={{ color: 'red' }}>
-                                        Delete
-                                    </Button>
-                                    {' '}
-                                    <Button
-                                        variant="contained"
-                                        onClick={() => handleShare(recipe.id)}
-                                        sx={{ color: 'blue' }}
+                        <Grid container spacing={3}>
+                            {filteredRecipes.map((recipe) => (
+                                <Grid item xs={12} sm={6} md={4} key={recipe.id}>
+                                    <Card
+                                        sx={{
+                                            height: 380,
+                                            width: 380,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                        }}
                                     >
-                                        Share
-                                    </Button>
-                                </div>
+                                        <CardMedia
+                                            component="img"
+                                            height="160"
+                                            width="100%"
+                                            image={recipe.imageUrl}
+                                            alt={recipe.name}
+                                            sx={{
+                                                objectFit: 'cover',
+                                                objectPosition: 'center',
+                                                height: 240,
+                                                width: '100%',
+                                            }}
+                                        />
+                                        <Box sx={{ p: 2 }}>
+                                            <Typography variant="h6" gutterBottom>{recipe.name}</Typography>
+                                            <Typography variant="body2" gutterBottom>
+                                                {recipe.ingredients?.length || 0} ingredients
+                                            </Typography>
+                                        </Box>
+                                        <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2, pb: 2 }}>
+                                            <Button
+                                                component={Link}
+                                                to={`/userRecipes/${recipe.id}`}
+                                                variant="outlined"
+                                                size="small"
+                                            >
+                                                View
+                                            </Button>
+                                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                                <Button
+                                                    onClick={() => handleDelete(recipe.id)}
+                                                    color="error"
+                                                    variant="outlined"
+                                                    size="small"
+                                                >
+                                                    Delete
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="secondary"
+                                                    onClick={() => handleShare(recipe.id)}
+                                                    size="small"
+                                                >
+                                                    Share
+                                                </Button>
+                                            </Box>
+                                        </Box>
+
+                                    </Card>
+
+                                </Grid>
                             ))}
-                        </div>
+                        </Grid>
                     )}
                 </>
             ) : (
-                <div>
-                    <p>You must be logged in to view your recipes.</p>
-                    <Link to="/logIn">Log In</Link>
-                    <br />
-                    <Link to="/signUp">Sign Up</Link>
-                </div>
+                <Box textAlign="center">
+                    <Typography variant="h6" gutterBottom>
+                        You must be logged in to view your recipes.
+                    </Typography>
+                    <Button component={Link} to="/logIn" variant="contained" sx={{ m: 1 }}>
+                        Log In
+                    </Button>
+                    <Button component={Link} to="/signUp" variant="outlined" sx={{ m: 1 }}>
+                        Sign Up
+                    </Button>
+                </Box>
             )}
-        </div>
+        </Container>
     );
 }
