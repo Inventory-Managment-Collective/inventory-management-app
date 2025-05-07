@@ -302,7 +302,7 @@ export default function Recipes() {
                                                         paddingY: 1,
                                                     }}
                                                     component={RouterLink}
-                                                    to={`/userRecipes/${recipe.id}`}
+                                                    to={`/recipes/${recipe.id}`}
                                                     variant="outlined"
                                                     size="small"
                                                 >
