@@ -13,6 +13,8 @@ export default function CreateRecipe() {
   const navigate = useNavigate();
 
   const auth = getAuth();
+  //functions very similarly to createIngredeint but with cloudinary to allow the user to upload a picture
+  //of their recipe from their machine, as opposed
 
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
@@ -28,6 +30,11 @@ export default function CreateRecipe() {
     const data = await res.json();
     return data.secure_url;
   };
+  //Function to upload an image file to cloudinary. takes in file as a parameter which will be the image selected by
+  //the user. constructs a formData object with the file, the upload preset we denoted and the name of the cloud
+  //to send the image to. Then uses fetch to send a post request to our cloud with the formData object we constructed
+  //res.json() will then read the body of the HTTP response and transltes it to JSON. From this json we then extract and
+  //return the url to the image which can then be used as the 'src' for rendering purposes
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -88,12 +95,19 @@ export default function CreateRecipe() {
       alert('Failed to create recipe.');
     }
   };
+  //Function which handle submission of the form to create a new recipe. Starts by validating the fact
+  //that the form is filled where necessary. Then it it will then initialise imageUrl as just an empty space 
+  //and, if an image was provided by the user, call uploadImageToCloudinary with the imageFile to upload and 
+  // return the url to the image. the function will then filter the ingredeints to retrieve only the valid ones, ones with a non-empty
+  // string name and unit a valid number for quantity. It will then construct a newRecipe object with valid name, instructions, ingredients and 
+  // the imageUrl derived earlier. This recipe is then saved to firebase via push and set. 
 
   const handleInstructionChange = (index, value) => {
     const newInstructions = [...instructions];
     newInstructions[index] = value;
     setInstructions(newInstructions);
   };
+  //function to 
 
   const addInstruction = () => setInstructions([...instructions, '']);
 

@@ -121,19 +121,17 @@ export default function Recipes() {
 
             if (snapshot.exists()) {
                 const userRecipesData = snapshot.val();
-
                 savedRecipeKey = Object.keys(userRecipesData).find(
                     key => userRecipesData[key].id === recipeId
                 );
             }
 
             if (savedRecipeKey) {
+                // Remove the recipe
                 await remove(ref(db, `users/${user.uid}/recipes/${savedRecipeKey}`));
-
-                setUserRecipes(prev => prev.filter(recipeIdInList => recipeIdInList !== recipeId));
-
-                alert('Recipe removed from your list!');
+                setUserRecipes(prev => prev.filter(id => id !== recipeId));
             } else {
+                // Save the recipe
                 const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
                 if (!recipeSnap.exists()) {
                     alert('Recipe not found.');
@@ -141,28 +139,26 @@ export default function Recipes() {
                 }
 
                 const recipeData = recipeSnap.val();
-                const newRef = push(userRecipesRef);
+
+                const newRef = ref(db, `users/${user.uid}/recipes/${recipeId}`);
                 await set(newRef, { ...recipeData, id: recipeId });
 
-                setUserRecipes(prev => [...prev, recipeId]);
 
-                alert('Recipe saved to your list!');
+                setUserRecipes(prev => [...prev, recipeId]);
             }
 
         } catch (error) {
             console.error('Error saving/removing recipe:', error);
-            alert('Failed to save/remove recipe.');
         }
     };
 
 
-
-
-
     //Functionality that allows the user to save a global recipe to their own personal recipe list.
-    //fetches the particular recipes data from the recipes node with get. stores the info for that recipe
-    //in recipe data. contructs the path to the users recipe node in userRecipesRef. newRef generates a fresh id 
-    //so the saved recipe won't overwrite anything and then uses set to write recipeData to the specified newRef path
+    //fetches the particular recipes data from the recipes node with get. It will then extract the data in snapshot with
+    //.val() and will then sift through userRecipesDate with .find(). if a match is found for the id of the recipe the button is
+    //tied to, then saveRecipeKey will be set to it's value, if not it remains as null. After this point, one of two things will happen.
+    //if savedRecipeKey is not null then that means it the recipe already exists with in the users list and so it will remove it from the list allowing the 
+    //button to act as an 'un save'. If savedRecipeKey is null then this is a fresh recipe so add it to the user's list
 
     const handleLike = async (recipeId) => {
         if (!user) {
