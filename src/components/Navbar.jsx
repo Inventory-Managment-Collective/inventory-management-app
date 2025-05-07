@@ -72,79 +72,83 @@ function ResponsiveAppBar() {
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
+      <Toolbar sx={{ position: 'relative', minHeight: '64px' }}>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <AdbIcon sx={{ display: { xs: 'flex', md: 'flex' }, mr: 1, }} />
+            <AdbIcon sx={{ color: 'white', mr: 1 }} />
             <Typography
               variant="h6"
               noWrap
               sx={{
-                mr: 2,
-                display: { xs: 'flex', md: 'flex' },
                 fontFamily: 'monospace',
                 fontWeight: 700,
                 letterSpacing: '.3rem',
                 color: 'inherit',
-                textDecoration: 'none',
-                '&:hover': {
-                  color: 'secondary.main',
-                },
+                '&:hover': { color: 'secondary.main' },
               }}
             >
               Quartermaster
             </Typography>
           </Link>
+        </Box>
 
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              {pages.map((page) => (
-                <Button
-                  key={page.label}
-                  component={Link}
-                  to={page.path}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
-                >
-                  {page.label}
-                </Button>
-              ))}
-            </Box>
-          </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            {user ? (
-              <>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.email} src="/static/images/avatar/2.jpg" />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                  keepMounted
-                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting.label} onClick={() => handleSettingClick(setting)}>
-                      <Typography textAlign="center">{setting.label}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            ) : (
-              <Button component={Link} to="/logIn" color="inherit">
-                Log In
-              </Button>
-            )}
-          </Box>
-        </Toolbar>
-      </Container>
-    </AppBar >
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            position: 'absolute',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            gap: 2,
+          }}
+        >
+          {pages.map((page) => (
+            <Button
+              key={page.label}
+              component={Link}
+              to={page.path}
+              sx={{ color: 'white' }}
+            >
+              {page.label}
+            </Button>
+          ))}
+        </Box>
+
+
+        <Box sx={{ marginLeft: 'auto' }}>
+          {user ? (
+            <>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar alt={user.email} src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                keepMounted
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting) => (
+                  <MenuItem key={setting.label} onClick={() => handleSettingClick(setting)}>
+                    <Typography textAlign="center">{setting.label}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </>
+          ) : (
+            <Button component={Link} to="/logIn" color="inherit">
+              Log In
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
 
