@@ -21,6 +21,8 @@ import {
     Box,
 } from '@mui/material';
 
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
     const [userRecipes, setUserRecipes] = useState([]);
@@ -213,6 +215,7 @@ export default function Recipes() {
                     <Grid container spacing={2} justifyContent="flex-start" sx={{ width: '100%' }}>
                         {recipes.map((recipe) => {
                             const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
+                            const alreadyLiked = recipe.likedBy?.[user?.uid];
 
                             return (
                                 <Grid
