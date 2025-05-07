@@ -3,19 +3,20 @@ import { ref, get, child, push, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Button } from '@mui/material';
+import { Button, TextField, Box } from '@mui/material';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const auth = getAuth();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             setUser(firebaseUser);
-            setLoading(false); // Set loading to false as soon as auth state is determined
+            setLoading(false);
         });
 
         return () => unsubscribe();
@@ -74,7 +75,6 @@ export default function UserRecipes() {
             }
 
             const recipeData = userRecipeSnap.val();
-
             const globalRecipesRef = ref(db, 'recipes');
             const newRef = push(globalRecipesRef);
             await set(newRef, recipeData);
@@ -86,19 +86,34 @@ export default function UserRecipes() {
         }
     };
 
+    const filteredRecipes = recipes.filter(recipe =>
+        recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
+    
     if (loading) return <p>Loading recipes...</p>;
 
     return (
         <div>
             <h2>Recipes</h2>
             {user ? (
-                recipes.length === 0 ? (
-                    <p>No recipes found.</p>
-                ) : (
-                    <div>
-                        <Link to="/createRecipe">+ Add New Recipe</Link>
+                <>
+                    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+                        <TextField
+                            label="Search Recipes"
+                            variant="outlined"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            sx={{ width: '300px' }}
+                        />
+                    </Box>
+
+                    <Link to="/createRecipe">+ Add New Recipe</Link>
+
+                    {filteredRecipes.length === 0 ? (
+                        <p>No recipes found.</p>
+                    ) : (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                            {recipes.map(recipe => (
+                            {filteredRecipes.map(recipe => (
                                 <div
                                     key={recipe.id}
                                     style={{
@@ -117,18 +132,22 @@ export default function UserRecipes() {
                                     <p>{recipe.ingredients?.length || 0} ingredients</p>
                                     <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
                                     {' '}
-                                    <Button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
+                                    <Button onClick={() => handleDelete(recipe.id)} sx={{ color: 'red' }}>
                                         Delete
                                     </Button>
                                     {' '}
-                                    <Button variant="contained" onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => handleShare(recipe.id)}
+                                        sx={{ color: 'blue' }}
+                                    >
                                         Share
                                     </Button>
                                 </div>
                             ))}
                         </div>
-                    </div>
-                )
+                    )}
+                </>
             ) : (
                 <div>
                     <p>You must be logged in to view your recipes.</p>

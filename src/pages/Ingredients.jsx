@@ -55,8 +55,9 @@ export default function Ingredients() {
 
     fetchIngredients();
   }, [user]);
-//useEffect set to run whenever the user state changes. if user exists, proceeds with aquiring
-//their ingredient list with get. stores the data of that retrieved 
+//useEffect set to run whenever the user state changes. if user exists, proceeds with acquiring
+//their ingredient list with get. stores the data of that retrieved in snapshot then translates it
+//into an array with Object.
 
   const handleDelete = async (id) => {
     if (!user) return;
@@ -119,7 +120,7 @@ export default function Ingredients() {
             <ul>
               {ingredients
                 .filter(ingredient =>
-                  ingredient.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+                  ingredient?.name.toLowerCase().startsWith(searchTerm.toLowerCase())
                 )
                 .map(ingredient => (
                   <li key={ingredient.id}>
