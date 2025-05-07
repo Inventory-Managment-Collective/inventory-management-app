@@ -21,8 +21,6 @@ import {
     Box,
 } from '@mui/material';
 
-import FavoriteIcon from '@mui/icons-material/Favorite';
-
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
     const [userRecipes, setUserRecipes] = useState([]);
@@ -31,9 +29,9 @@ export default function Recipes() {
 
     const navigate = useNavigate();
     const auth = getAuth();
-    //Initialisation of state and auth set up, recipes fro the global recipes,
-    //userRecipes for the recipes the user already has in their account, loading
-    //to indicate if the data is still being fethced and user for the current user
+//Initialisation of state and auth set up, recipes fro the global recipes,
+//userRecipes for the recipes the user already has in their account, loading
+//to indicate if the data is still being fethced and user for the current user
 
 
     useEffect(() => {
@@ -43,9 +41,9 @@ export default function Recipes() {
 
         return () => unsubscribe();
     }, []);
-    //onAuthStateChange keep track of changes in authentication. When a user logs in,
-    //firebaseUser will be populated and user will be set to it. WHen the user logs out, 
-    //user becomes null
+//onAuthStateChange keep track of changes in authentication. When a user logs in,
+//firebaseUser will be populated and user will be set to it. WHen the user logs out, 
+//user becomes null
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -70,11 +68,11 @@ export default function Recipes() {
 
         fetchRecipes();
     }, []);
-    //retrieves all the global recipes, located in the /recipes node, using firebase get method. 
-    //Uses Object.entries() to convert the data from an object to an array and sets the defaults 
-    //for likes and likedBy to 0 and an empty object. Likes will keep track of how many times  
-    //a recipes has been liked and likedBy will be used to prevent users from liking things multiple times.
-
+//retrieves all the global recipes, located in the /recipes node, using firebase get method. 
+//Uses Object.entries() to convert the data from an object to an array and sets the defaults 
+//for likes and likedBy to 0 and an empty object. Likes will keep track of how many times  
+//a recipes has been liked and likedBy will be used to prevent users from liking things multiple times.
+    
     useEffect(() => {
         if (!user) return;
 
@@ -95,9 +93,9 @@ export default function Recipes() {
 
         fetchUserRecipes();
     }, [user]);
-    //fetches recipes similar to the above but this time for user specific recipes. Only takes in
-    //the names of the saved recipes, stored in userRecipes, so that we can keep track of which recipes
-    //the user has already saved. 
+//fetches recipes similar to the above but this time for user specific recipes. Only takes in
+//the names of the saved recipes, stored in userRecipes, so that we can keep track of which recipes
+//the user has already saved. 
 
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
@@ -135,10 +133,10 @@ export default function Recipes() {
             alert('Failed to save recipe.');
         }
     };
-    //Functionality that allows the user to save a global recipe to their own personal recipe list.
-    //fetches the particular recipes data from the recipes node with get. stores the info for that recipe
-    //in recipe data. contructs the path to the users recipe node in userRecipesRef. newRef generates a fresh id 
-    //so the saved recipe won't overwrite anything and then uses set to write recipeData to the specified newRef path
+//Functionality that allows the user to save a global recipe to their own personal recipe list.
+//fetches the particular recipes data from the recipes node with get. stores the info for that recipe
+//in recipe data. contructs the path to the users recipe node in userRecipesRef. newRef generates a fresh id 
+//so the saved recipe won't overwrite anything and then uses set to write recipeData to the specified newRef path
 
     const handleLike = async (recipeId) => {
         if (!user) {
@@ -188,12 +186,12 @@ export default function Recipes() {
             alert('Failed to like recipe.');
         }
     };
-    //Functionality for the like button. Generates a reference to the specific recipe stored in recipeRef.
-    //Fetches that recipes data with get, stores it in snapshot. extracts the recipe data with .val(). in particular, 
-    //stores the liked by object to retrieve who has already liked the recipe, empty if likedBy doesn't exist. checks if the user's
-    //id features in liked by, wont' progress if so. calulates the new likes value and stores it in updatedLikes. updates the recipe
-    //with the new likes and likeBy values with set(). updates the recipes state to reflect the changes, iterates over the array with .map().
-    //If the id matches the liked recipe, we update its likes and likedBy.
+//Functionality for the like button. Generates a reference to the specific recipe stored in recipeRef.
+//Fetches that recipes data with get, stores it in snapshot. extracts the recipe data with .val(). in particular, 
+//stores the liked by object to retrieve who has already liked the recipe, empty if likedBy doesn't exist. checks if the user's
+//id features in liked by, wont' progress if so. calulates the new likes value and stores it in updatedLikes. updates the recipe
+//with the new likes and likeBy values with set(). updates the recipes state to reflect the changes, iterates over the array with .map().
+//If the id matches the liked recipe, we update its likes and likedBy.
 
 
 
@@ -215,7 +213,6 @@ export default function Recipes() {
                     <Grid container spacing={2} justifyContent="flex-start" sx={{ width: '100%' }}>
                         {recipes.map((recipe) => {
                             const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
-                            const alreadyLiked = recipe.likedBy?.[user.uid];
 
                             return (
                                 <Grid
@@ -261,30 +258,15 @@ export default function Recipes() {
                                                 View
                                             </Button>
                                             {user && (
-                                                <>
-                                                    <Button
-                                                        size="small"
-                                                        variant="contained"
-                                                        color={alreadySaved ? 'inherit' : 'success'}
-                                                        onClick={() => handleSave(recipe.id)}
-                                                        disabled={alreadySaved}
-                                                    >
-                                                        {alreadySaved ? 'Saved' : 'Save'}
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => handleLike(recipe.id)}
-                                                        disabled={alreadyLiked}
-                                                        sx={{
-                                                            color: alreadyLiked ? 'gray' : 'blue',
-                                                            cursor: alreadyLiked ? 'not-allowed' : 'pointer',
-                                                            opacity: alreadyLiked ? 0.5 : 1,
-                                                        }}
-                                                    >
-                                                        <FavoriteIcon sx={{ fontSize: 20, mr: 1 }} />
-                                                        {alreadyLiked ? 'Liked' : 'Like'}
-                                                    </Button>
-                                                </>
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    color={alreadySaved ? 'inherit' : 'success'}
+                                                    onClick={() => handleSave(recipe.id)}
+                                                    disabled={alreadySaved}
+                                                >
+                                                    {alreadySaved ? 'Saved' : 'Save'}
+                                                </Button>
                                             )}
                                         </CardActions>
                                     </Card>
@@ -293,6 +275,8 @@ export default function Recipes() {
                         })}
                     </Grid>
                 </Box>
+
+
             )}
             <Grid container justifyContent="center" spacing={2} sx={{ mt: 4 }}>
                 <Grid item>
