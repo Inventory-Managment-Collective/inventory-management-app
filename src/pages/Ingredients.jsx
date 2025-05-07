@@ -15,6 +15,7 @@ export default function Ingredients() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
+      setLoading(false); // Stop loading once authentication state is determined
     });
 
     return () => unsubscribe();
@@ -62,12 +63,6 @@ export default function Ingredients() {
     }
   };
 
-  if (loading) return <p>Loading ingredients...</p>;
-
-  const filteredIngredients = ingredients.filter(ingredient =>
-    ingredient.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-  );
-
   const handleAddStock = async (id, amountToAdd) => {
     if (!user) return;
 
@@ -88,55 +83,72 @@ export default function Ingredients() {
     }
   };
 
+  if (loading) return <p>Loading ingredients...</p>;
+
   return (
     <div>
       <h2>Ingredients List</h2>
-      <div>
-        <label htmlFor="search">Search Ingredients: </label>
-        <input
-          id="search"
-          type="text"
-          placeholder="Enter name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      {ingredients.length === 0 ? (
-        <p>No ingredients found.</p>
+
+      {user ? (
+        <>
+          <div>
+            <label htmlFor="search">Search Ingredients: </label>
+            <input
+              id="search"
+              type="text"
+              placeholder="Enter name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {ingredients.length === 0 ? (
+            <p>No ingredients found.</p>
+          ) : (
+            <ul>
+              {ingredients
+                .filter(ingredient =>
+                  ingredient.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+                )
+                .map(ingredient => (
+                  <li key={ingredient.id}>
+                    <strong>{ingredient.name}</strong> — {ingredient.quantity} {ingredient.unit}
+                    <br />
+                    <Link to={`/updateIngredient/${ingredient.id}`}>Edit</Link>
+                    {' '}
+                    {ingredient.unit === 'grams' && (
+                      <>
+                        <button onClick={() => handleAddStock(ingredient.id, 100)}>+100g</button>
+                        <button onClick={() => handleAddStock(ingredient.id, 500)}>+500g</button>
+                      </>
+                    )}
+                    {ingredient.unit === 'ml' && (
+                      <>
+                        <button onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</button>
+                        <button onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</button>
+                      </>
+                    )}
+                    {ingredient.unit === 'items' && (
+                      <>
+                        <button onClick={() => handleAddStock(ingredient.id, 1)}>+1</button>
+                        <button onClick={() => handleAddStock(ingredient.id, 6)}>+6</button>
+                      </>
+                    )}
+                    <button onClick={() => handleDelete(ingredient.id)}>Delete</button>
+                  </li>
+                ))}
+            </ul>
+          )}
+          <Link to="/createIngredient">Add an Ingredient</Link>
+        </>
       ) : (
-        <ul>
-          {filteredIngredients.map(ingredient => (
-            <li key={ingredient.id}>
-              <strong>{ingredient.name}</strong> — {ingredient.quantity} {ingredient.unit}
-              <br />
-              <Link to={`/updateIngredient/${ingredient.id}`}>Edit</Link>
-              {' '}
-              {ingredient.unit === 'grams' && (
-                <>
-                  <button onClick={() => handleAddStock(ingredient.id, 100)}>+100g</button>
-                  <button onClick={() => handleAddStock(ingredient.id, 500)}>+500g</button>
-                </>
-              )}
-              {ingredient.unit === 'ml' && (
-                <>
-                  <button onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</button>
-                  <button onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</button>
-                </>
-              )}
-              {ingredient.unit === 'items' && (
-                <>
-                  <button onClick={() => handleAddStock(ingredient.id, 1)}>+1</button>
-                  <button onClick={() => handleAddStock(ingredient.id, 6)}>+6</button>
-                </>
-              )}
-              <button onClick={() => handleDelete(ingredient.id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
+        <div>
+          <p>You must be logged in to view your ingredients.</p>
+          <Link to="/logIn">Log In</Link>
+          <br />
+          <Link to="/signUp">Sign Up</Link>
+        </div>
       )}
-      <Link to="/createIngredient">Add an Ingredient</Link>
-      <br />
-      <Link to="/">Back</Link>
     </div>
   );
 }

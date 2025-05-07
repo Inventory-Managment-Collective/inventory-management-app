@@ -4,7 +4,6 @@ import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Button } from '@mui/material';
-import TestSecurity from '../components/TestSecurity';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -16,6 +15,7 @@ export default function UserRecipes() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             setUser(firebaseUser);
+            setLoading(false); // Set loading to false as soon as auth state is determined
         });
 
         return () => unsubscribe();
@@ -48,7 +48,6 @@ export default function UserRecipes() {
 
         fetchRecipes();
     }, [user]);
-
 
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
@@ -87,53 +86,58 @@ export default function UserRecipes() {
         }
     };
 
-
-
-
     if (loading) return <p>Loading recipes...</p>;
 
     return (
         <div>
             <h2>Recipes</h2>
-            {recipes.length === 0 ? (
-                <p>No recipes found.</p>
+            {user ? (
+                recipes.length === 0 ? (
+                    <p>No recipes found.</p>
+                ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                        {recipes.map(recipe => (
+                            <div
+                                key={recipe.id}
+                                style={{
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    padding: '1rem',
+                                    width: '250px',
+                                }}
+                            >
+                                <img
+                                    src={recipe.imageUrl}
+                                    alt={recipe.name}
+                                    style={{ width: '100%', borderRadius: '4px' }}
+                                />
+                                <h3>{recipe.name}</h3>
+                                <p>{recipe.ingredients?.length || 0} ingredients</p>
+                                <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
+                                {' '}
+                                <Button onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
+                                    Delete
+                                </Button>
+                                {' '}
+                                <Button variant="contained" onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
+                                    Share
+                                </Button>
+                                <br />
+                                <Link to="/createRecipe">+ Add New Recipe</Link>
+                                <br />
+                                <Link to="/">Back</Link>
+                            </div>
+                        ))}
+                    </div>
+                )
             ) : (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {recipes.map(recipe => (
-                        <div
-                            key={recipe.id}
-                            style={{
-                                border: '1px solid #ccc',
-                                borderRadius: '8px',
-                                padding: '1rem',
-                                width: '250px',
-                            }}
-                        >
-                            <img
-                                src={recipe.imageUrl}
-                                alt={recipe.name}
-                                style={{ width: '100%', borderRadius: '4px' }}
-                            />
-                            <h3>{recipe.name}</h3>
-                            <p>{recipe.ingredients?.length || 0} ingredients</p>
-                            <Link to={`/userRecipes/${recipe.id}`}>View Recipe</Link>
-                            {' '}
-                            <Button  onClick={() => handleDelete(recipe.id)} style={{ color: 'red' }}>
-                                Delete
-                            </Button>
-                            {' '}
-                            <Button variant="contained" onClick={() => handleShare(recipe.id)} style={{ color: 'blue' }}>
-                                Share
-                            </Button>
-
-                        </div>
-                    ))}
+                <div>
+                    <p>You must be logged in to view your recipes.</p>
+                    <Link to="/logIn">Log In</Link>
+                    <br />
+                    <Link to="/signUp">Sign Up</Link>
                 </div>
             )}
-            <br />
-            <Link to="/createRecipe">+ Add New Recipe</Link>
-            <br />
-            <Link to="/">Back</Link>
         </div>
     );
 }
