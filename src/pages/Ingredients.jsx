@@ -3,23 +3,31 @@ import { ref, get, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+//Imports similar to recipes, now with remove for deleting ingredients, should
+//the user so wish
 
 export default function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
+//Initialisation of states, ingredients will hold the ingredients retrieved from
+//the RTDB, searchTerm will store the input of the search box to filter the list
+//of ingredients
 
   const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      setLoading(false); // Stop loading once authentication state is determined
+      setLoading(false); 
     });
 
     return () => unsubscribe();
   }, []);
+//Keeps track of the current user, same as Recipes. Loading is set to false so that when
+//a not logged in user sees the page we can conditonally render the log in and sign up links.
+
 
   useEffect(() => {
     if (!user) return;
@@ -47,6 +55,8 @@ export default function Ingredients() {
 
     fetchIngredients();
   }, [user]);
+//useEffect set to run whenever the user state changes. if user exists, proceeds with aquiring
+//their ingredient list with get. stores the data of that retrieved 
 
   const handleDelete = async (id) => {
     if (!user) return;
