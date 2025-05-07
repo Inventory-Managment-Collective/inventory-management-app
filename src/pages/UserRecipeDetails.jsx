@@ -134,7 +134,7 @@ export default function UserRecipeDetails() {
             : 0;
           const sufficient = stock >= ing.quantity;
           return (
-            <li key={index} style={{ color: sufficient ? 'white' : 'red' }}>
+            <li key={index} style={{ color: sufficient ? 'black' : 'red' }}>
               {ing.name || 'Unnamed'}: {stock}/{ing.quantity} {ing.unit}{' '}
               {!sufficient && '(Insufficient)'}
             </li>

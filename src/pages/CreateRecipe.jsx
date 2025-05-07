@@ -13,6 +13,7 @@ export default function CreateRecipe() {
   const navigate = useNavigate();
 
   const auth = getAuth();
+  //functions very similarly to createIngredeint but with cloudinary to allow t
 
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
