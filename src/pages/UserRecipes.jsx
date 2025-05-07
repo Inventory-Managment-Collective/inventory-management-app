@@ -175,13 +175,13 @@ export default function UserRecipes() {
                     {filteredRecipes.length === 0 ? (
                         <Typography align="center">No recipes found.</Typography>
                     ) : (
-                        <Grid container spacing={3}>
+                        <Grid container spacing={1.5}>
                             {filteredRecipes.map((recipe) => (
                                 <Grid item xs={12} sm={6} md={4} key={recipe.id}>
                                     <Card
                                         sx={{
                                             height: 390,
-                                            width: 380,
+                                            width: 420,
                                             display: 'flex',
                                             flexDirection: 'column',
                                             justifyContent: 'space-between',

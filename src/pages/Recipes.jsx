@@ -255,7 +255,7 @@ export default function Recipes() {
                 </Typography>
             ) : (
                 <Box display="flex" justifyContent="center" sx={{ width: '100%' }}>
-                    <Grid container spacing={1} justifyContent="flex-start" sx={{ width: '100%' }}>
+                    <Grid container spacing={1.5} justifyContent="flex-start" sx={{ width: '100%' }}>
                         {filteredRecipes.map((recipe) => {
                             const alreadySaved = userRecipes.includes(recipe.id);
                             const alreadyLiked = recipe.likedBy?.[user?.uid];
