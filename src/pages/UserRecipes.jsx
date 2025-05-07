@@ -14,6 +14,9 @@ import {
     CardMedia,
     Card,
 } from '@mui/material';
+//This functions very similarly to Recipes except no like button, save is replaced with share
+//and the user can delete a recipe or view recipe if they choose so.
+
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -58,6 +61,10 @@ export default function UserRecipes() {
 
         fetchRecipes();
     }, [user]);
+    //fetches the list of recieps, similar to Recipes, but this time it pointed to the list of recipes associated 
+    //with the current user, goes to `users/${user.uid}/recipes` instead of just 'recipes' and child is used to construct a
+    //relative path from dbRef, the path to the root of the database.
+
 
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
@@ -71,6 +78,8 @@ export default function UserRecipes() {
             alert('Failed to delete recipe.');
         }
     };
+    //fucntionality so that the user can delete a recipe from their list, functions the same as delete in ingredeints 
+    //but uses the path to a particular recipe instead of an ingredient
 
     const handleShare = async (recipeId) => {
         const confirmShare = window.confirm('Do you want to share this recipe globally?');
@@ -94,6 +103,8 @@ export default function UserRecipes() {
             alert('Failed to share recipe.');
         }
     };
+    //functionality for the user to share a recipe. functions very similarly to handleSave but the paths for get and 
+    //push are swapped around.
 
     const filteredRecipes = recipes.filter(recipe =>
         recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase())

@@ -56,6 +56,8 @@ export default function UpdateIngredient() {
 
     fetchIngredient();
   }, [user, ingredientId, navigate]);
+  //useEffect which will re run anytime user, ingredientId or navigate. fetches the ingredient we wish to update with get and the path to 
+  //that ingredient. It will then update the state variable with the data we just fetched
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,6 +78,8 @@ export default function UpdateIngredient() {
       alert('Failed to update ingredient');
     }
   };
+  //functionality which will actually update the ingredient in the databse once the form is
+  //submitted. 
 
   if (loading) return <p>Loading ingredient...</p>;
 
