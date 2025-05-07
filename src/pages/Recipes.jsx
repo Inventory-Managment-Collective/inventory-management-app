@@ -112,26 +112,26 @@ export default function Recipes() {
             alert('You must be logged in to save a recipe.');
             return;
         }
-    
+
         try {
             const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
             const snapshot = await get(userRecipesRef);
-    
+
             let savedRecipeKey = null;
-    
+
             if (snapshot.exists()) {
                 const userRecipesData = snapshot.val();
-    
+
                 savedRecipeKey = Object.keys(userRecipesData).find(
                     key => userRecipesData[key].id === recipeId
                 );
             }
-    
+
             if (savedRecipeKey) {
                 await remove(ref(db, `users/${user.uid}/recipes/${savedRecipeKey}`));
 
                 setUserRecipes(prev => prev.filter(recipeIdInList => recipeIdInList !== recipeId));
-    
+
                 alert('Recipe removed from your list!');
             } else {
                 const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
@@ -139,23 +139,23 @@ export default function Recipes() {
                     alert('Recipe not found.');
                     return;
                 }
-    
+
                 const recipeData = recipeSnap.val();
                 const newRef = push(userRecipesRef);
                 await set(newRef, { ...recipeData, id: recipeId });
 
                 setUserRecipes(prev => [...prev, recipeId]);
-    
+
                 alert('Recipe saved to your list!');
             }
-    
+
         } catch (error) {
             console.error('Error saving/removing recipe:', error);
             alert('Failed to save/remove recipe.');
         }
     };
-    
-    
+
+
 
 
 
@@ -301,7 +301,15 @@ export default function Recipes() {
                                         </CardContent>
                                         <CardActions sx={{ px: 2, justifyContent: 'space-between', display: 'flex' }}>
                                             <Box>
-                                                <Button size="small" component={RouterLink} to={`/recipes/${recipe.id}`}>
+                                                <Button
+                                                    sx={{
+                                                        paddingY: 1,
+                                                    }}
+                                                    component={RouterLink}
+                                                    to={`/userRecipes/${recipe.id}`}
+                                                    variant="outlined"
+                                                    size="small"
+                                                >
                                                     View
                                                 </Button>
                                             </Box>
@@ -314,13 +322,15 @@ export default function Recipes() {
                                                         color={alreadySaved ? 'secondary' : 'success'}
                                                         onClick={() => handleSave(recipe.id)}
                                                         sx={{
-                                                            backgroundColor: alreadySaved ? 'secondary.main' : 'success.main',
+                                                            paddingX: alreadySaved ? 2 : 2.5,
+                                                            paddingY: 1,
+                                                            backgroundColor: alreadySaved ? 'primary.dark' : 'primary.main',
                                                             '&:hover': {
-                                                                backgroundColor: alreadySaved ? 'secondary.dark' : 'success.dark',
+                                                                backgroundColor: alreadySaved ? 'secondary.dark' : 'primary.dark',
                                                             },
                                                         }}
                                                     >
-                                                        <ArchiveIcon sx={{ fontSize: 18, mr: 1 }} />
+                                                        <ArchiveIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
                                                         {alreadySaved ? 'Saved' : 'Save'}
                                                     </Button>
 
@@ -334,11 +344,12 @@ export default function Recipes() {
                                                             color: alreadyLiked ? 'white' : 'secondary.main',
                                                             cursor: 'pointer',
                                                             '&:hover': {
-                                                                backgroundColor: alreadyLiked ? 'secondary.dark' : 'transparent',
+                                                                backgroundColor: alreadyLiked ? 'secondary.dark' : 'lightpink',
+                                                                color:'white'
                                                             },
                                                         }}
                                                     >
-                                                        <FavoriteIcon sx={{ fontSize: 18, mr: 1 }} />
+                                                        <FavoriteIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
                                                         {alreadyLiked ? 'Liked' : 'Like'}
                                                     </Button>
 
