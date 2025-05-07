@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { ref, get, child, remove, push, set } from 'firebase/database';
+import { ref, get, remove, push, set } from 'firebase/database';
 import { db } from '../firebase';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+import {
+    Container,
+    Grid,
+    Card,
+    CardMedia,
+    CardContent,
+    CardActions,
+    Typography,
+    Button,
+    CircularProgress,
+    Box,
+} from '@mui/material';
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
@@ -29,8 +42,6 @@ export default function Recipes() {
                     const data = snapshot.val();
                     const items = Object.entries(data).map(([id, value]) => ({
                         id,
-                        likes: value.likes || 0,
-                        likedBy: value.likedBy || {},
                         ...value,
                     }));
                     setRecipes(items);
@@ -43,12 +54,9 @@ export default function Recipes() {
                 setLoading(false);
             }
         };
-    
+
         fetchRecipes();
     }, []);
-    
-
-
 
     useEffect(() => {
         if (!user) return;
@@ -70,6 +78,19 @@ export default function Recipes() {
 
         fetchUserRecipes();
     }, [user]);
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
+        if (!confirmDelete) return;
+
+        try {
+            await remove(ref(db, `recipes/${id}`));
+            setRecipes(prev => prev.filter(recipe => recipe.id !== id));
+        } catch (error) {
+            console.error('Error deleting recipe:', error);
+            alert('Failed to delete recipe.');
+        }
+    };
 
     const handleSave = async (recipeId) => {
         const confirmSave = window.confirm('Are you sure you want to save this recipe?');
@@ -95,129 +116,111 @@ export default function Recipes() {
         }
     };
 
-    const handleLike = async (recipeId) => {
-        if (!user) {
-            alert('You must be logged in to like a recipe.');
-            return;
-        }
-
-        try {
-            const recipeRef = ref(db, `recipes/${recipeId}`);
-            const snapshot = await get(recipeRef);
-
-            if (!snapshot.exists()) {
-                alert('Recipe not found.');
-                return;
-            }
-
-            const recipeData = snapshot.val();
-            const likedBy = recipeData.likedBy || {};
-
-            if (likedBy[user.uid]) {
-                alert('You have already liked this recipe.');
-                return;
-            }
-
-            const updatedLikes = (recipeData.likes || 0) + 1;
-
-            await set(recipeRef, {
-                ...recipeData,
-                likes: updatedLikes,
-                likedBy: {
-                    ...likedBy,
-                    [user.uid]: true
-                }
-            });
-
-            setRecipes(prev =>
-                prev.map(recipe =>
-                    recipe.id === recipeId
-                        ? { ...recipe, likes: updatedLikes, likedBy: { ...likedBy, [user.uid]: true } }
-                        : recipe
-                )
-            );
-
-            alert('Recipe liked!');
-        } catch (error) {
-            console.error('Error liking recipe:', error);
-            alert('Failed to like recipe.');
-        }
-    };
-
-
-
-
     if (loading) return <p>Loading recipes...</p>;
 
     return (
-        <div>
-            <h2>Recipes</h2>
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+            <Typography variant="h4" align="center" gutterBottom>
+                Recipes
+            </Typography>
+
             {recipes.length === 0 ? (
-                <p>No recipes found.</p>
+                <Typography variant="body1" align="center">
+                    No recipes found.
+                </Typography>
             ) : (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {recipes.map(recipe => {
-                        const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
+                <Box display="flex" justifyContent="center" sx={{ width: '100%' }}>
+                    <Grid container spacing={2} justifyContent="flex-start" sx={{ width: '100%' }}>
+                        {recipes.map((recipe) => {
+                            const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
 
-                        return (
-                            <div
-                                key={recipe.id}
-                                style={{
-                                    border: '1px solid #ccc',
-                                    borderRadius: '8px',
-                                    padding: '1rem',
-                                    width: '250px',
-                                }}
-                            >
-                                <img
-                                    src={recipe.imageUrl}
-                                    alt={recipe.name}
-                                    style={{ width: '100%', borderRadius: '4px' }}
-                                />
-                                <h3>{recipe.name}</h3>
-                                <p>{recipe.ingredients?.length || 0} ingredients</p>
-                                <p>Likes: {recipe.likes || 0}</p>
-                                <Link to={`/recipes/${recipe.id}`}>View Recipe</Link>{' '}
-                                {user && (
-                                    <>
-                                        <button
-                                            onClick={() => handleSave(recipe.id)}
-                                            disabled={alreadySaved}
-                                            style={{
-                                                color: alreadySaved ? 'gray' : 'green',
-                                                cursor: alreadySaved ? 'not-allowed' : 'pointer',
-                                                opacity: alreadySaved ? 0.5 : 1
+                            return (
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sm={6}
+                                    md={4}
+                                    lg={2}
+                                    xl={2}
+                                    key={recipe.id}
+                                >
+                                    <Card
+                                        sx={{
+                                            height: 280,
+                                            width: 280,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                        }}
+                                    >
+                                        <CardMedia
+                                            component="img"
+                                            height="160"
+                                            width="100%"
+                                            image={recipe.imageUrl}
+                                            alt={recipe.name}
+                                            sx={{
+                                                objectFit: 'cover',
+                                                objectPosition: 'center',
+                                                height: 140,
+                                                width: '100%',
                                             }}
-                                        >
-                                            {alreadySaved ? 'Saved' : 'Save'}
-                                        </button>
-                                        {' '}
-                                        <button
-                                            onClick={() => handleLike(recipe.id)}
-                                            disabled={recipe.likedBy?.[user.uid]}
-                                            style={{
-                                                color: recipe.likedBy?.[user.uid] ? 'gray' : 'blue',
-                                                cursor: recipe.likedBy?.[user.uid] ? 'not-allowed' : 'pointer',
-                                                opacity: recipe.likedBy?.[user.uid] ? 0.5 : 1,
-                                                marginLeft: '8px'
-                                            }}
-                                        >
-                                            👍 {recipe.likedBy?.[user.uid] ? 'Liked' : 'Like'}
-                                        </button>
-                                    </>
-                                )}
+                                        />
+                                        <CardContent sx={{ flexGrow: 1 }}>
+                                            <Typography gutterBottom variant="h6" component="div" noWrap>
+                                                {recipe.name}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {recipe.ingredients?.length || 0} ingredients
+                                            </Typography>
+                                        </CardContent>
+                                        <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
+                                            <Button size="small" component={RouterLink} to={`/recipes/${recipe.id}`}>
+                                                View
+                                            </Button>
+                                            {user && (
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    color={alreadySaved ? 'inherit' : 'success'}
+                                                    onClick={() => handleSave(recipe.id)}
+                                                    disabled={alreadySaved}
+                                                >
+                                                    {alreadySaved ? 'Saved' : 'Save'}
+                                                </Button>
+                                            )}
+                                        </CardActions>
+                                    </Card>
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+                </Box>
 
 
-                            </div>
-
-                        );
-                    })}
-                </div>
             )}
-            <br />
-            <Link to="/createRecipe">+ Add New Recipe</Link>
-            <br />
-            <Link to="/">Back</Link>
-        </div>
+            <Grid container justifyContent="center" spacing={2} sx={{ mt: 4 }}>
+                <Grid item>
+                    <Button
+                        component={RouterLink}
+                        to="/createRecipe"
+                        variant="contained"
+                        color="primary"
+                    >
+                        + Create New Recipe
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        component={RouterLink}
+                        to="/"
+                        variant="outlined"
+                        color="secondary"
+                    >
+                        Back
+                    </Button>
+                </Grid>
+            </Grid>
+        </Container>
     );
 }
+
