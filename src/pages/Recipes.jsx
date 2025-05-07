@@ -21,6 +21,8 @@ import {
     Box,
 } from '@mui/material';
 
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
     const [userRecipes, setUserRecipes] = useState([]);
@@ -279,7 +281,8 @@ export default function Recipes() {
                                                             opacity: alreadyLiked ? 0.5 : 1,
                                                         }}
                                                     >
-                                                        👍 {alreadyLiked ? 'Liked' : 'Like'}
+                                                        <FavoriteIcon sx={{ fontSize: 20, mr: 1 }} />
+                                                        {alreadyLiked ? 'Liked' : 'Like'}
                                                     </Button>
                                                 </>
                                             )}
