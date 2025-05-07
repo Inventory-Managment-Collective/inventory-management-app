@@ -120,7 +120,7 @@ export default function Ingredients() {
             <ul>
               {ingredients
                 .filter(ingredient =>
-                  ingredient.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+                  ingredient?.name.toLowerCase().startsWith(searchTerm.toLowerCase())
                 )
                 .map(ingredient => (
                   <li key={ingredient.id}>

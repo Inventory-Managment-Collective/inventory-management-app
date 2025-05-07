@@ -3,6 +3,7 @@ import { ref, get, remove, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import TextField from '@mui/material/TextField';
 //Imports for all the stuff we need for the page, useEffect and useState hooks,
 //ref, get, push and set firebase databse for communicating with teh RTDB
 //Link for navigation aswell as useNavigate and get Auth and AuthStateChange methods to
@@ -28,12 +29,15 @@ export default function Recipes() {
     const [userRecipes, setUserRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
 
     const navigate = useNavigate();
     const auth = getAuth();
-//Initialisation of state and auth set up, recipes fro the global recipes,
-//userRecipes for the recipes the user already has in their account, loading
-//to indicate if the data is still being fethced and user for the current user
+    //Initialisation of state and auth set up, recipes fro the global recipes,
+    //userRecipes for the recipes the user already has in their account, loading
+    //to indicate if the data is still being fethced, user for the current user
+    //and searchTerm for the content of the search box
 
 
     useEffect(() => {
@@ -43,9 +47,9 @@ export default function Recipes() {
 
         return () => unsubscribe();
     }, []);
-//onAuthStateChange keep track of changes in authentication. When a user logs in,
-//firebaseUser will be populated and user will be set to it. WHen the user logs out, 
-//user becomes null
+    //onAuthStateChange keep track of changes in authentication. When a user logs in,
+    //firebaseUser will be populated and user will be set to it. WHen the user logs out, 
+    //user becomes null
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -70,11 +74,11 @@ export default function Recipes() {
 
         fetchRecipes();
     }, []);
-//retrieves all the global recipes, located in the /recipes node, using firebase get method. 
-//Uses Object.entries() to convert the data from an object to an array and sets the defaults 
-//for likes and likedBy to 0 and an empty object. Likes will keep track of how many times  
-//a recipes has been liked and likedBy will be used to prevent users from liking things multiple times.
-    
+    //retrieves all the global recipes, located in the /recipes node, using firebase get method. 
+    //Uses Object.entries() to convert the data from an object to an array and sets the defaults 
+    //for likes and likedBy to 0 and an empty object. Likes will keep track of how many times  
+    //a recipes has been liked and likedBy will be used to prevent users from liking things multiple times.
+
     useEffect(() => {
         if (!user) return;
 
@@ -95,22 +99,9 @@ export default function Recipes() {
 
         fetchUserRecipes();
     }, [user]);
-//fetches recipes similar to the above but this time for user specific recipes. Only takes in
-//the names of the saved recipes, stored in userRecipes, so that we can keep track of which recipes
-//the user has already saved. 
-
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
-        if (!confirmDelete) return;
-
-        try {
-            await remove(ref(db, `recipes/${id}`));
-            setRecipes(prev => prev.filter(recipe => recipe.id !== id));
-        } catch (error) {
-            console.error('Error deleting recipe:', error);
-            alert('Failed to delete recipe.');
-        }
-    };
+    //fetches recipes similar to the above but this time for user specific recipes. Only takes in
+    //the names of the saved recipes, stored in userRecipes, so that we can keep track of which recipes
+    //the user has already saved. 
 
     const handleSave = async (recipeId) => {
         const confirmSave = window.confirm('Are you sure you want to save this recipe?');
@@ -135,10 +126,10 @@ export default function Recipes() {
             alert('Failed to save recipe.');
         }
     };
-//Functionality that allows the user to save a global recipe to their own personal recipe list.
-//fetches the particular recipes data from the recipes node with get. stores the info for that recipe
-//in recipe data. contructs the path to the users recipe node in userRecipesRef. newRef generates a fresh id 
-//so the saved recipe won't overwrite anything and then uses set to write recipeData to the specified newRef path
+    //Functionality that allows the user to save a global recipe to their own personal recipe list.
+    //fetches the particular recipes data from the recipes node with get. stores the info for that recipe
+    //in recipe data. contructs the path to the users recipe node in userRecipesRef. newRef generates a fresh id 
+    //so the saved recipe won't overwrite anything and then uses set to write recipeData to the specified newRef path
 
     const handleLike = async (recipeId) => {
         if (!user) {
@@ -157,44 +148,53 @@ export default function Recipes() {
 
             const recipeData = snapshot.val();
             const likedBy = recipeData.likedBy || {};
+            const hasLiked = likedBy[user.uid];
 
-            if (likedBy[user.uid]) {
-                alert('You have already liked this recipe.');
-                return;
+            const updatedLikes = hasLiked
+                ? (recipeData.likes || 0) - 1
+                : (recipeData.likes || 0) + 1;
+
+            const updatedLikedBy = { ...likedBy };
+            if (hasLiked) {
+                delete updatedLikedBy[user.uid];
+            } else {
+                updatedLikedBy[user.uid] = true;
             }
-
-            const updatedLikes = (recipeData.likes || 0) + 1;
 
             await set(recipeRef, {
                 ...recipeData,
                 likes: updatedLikes,
-                likedBy: {
-                    ...likedBy,
-                    [user.uid]: true
-                }
+                likedBy: updatedLikedBy,
             });
 
             setRecipes(prev =>
                 prev.map(recipe =>
                     recipe.id === recipeId
-                        ? { ...recipe, likes: updatedLikes, likedBy: { ...likedBy, [user.uid]: true } }
+                        ? { ...recipe, likes: updatedLikes, likedBy: updatedLikedBy }
                         : recipe
                 )
             );
 
-            alert('Recipe liked!');
         } catch (error) {
-            console.error('Error liking recipe:', error);
-            alert('Failed to like recipe.');
+            console.error('Error toggling like:', error);
+            alert('Failed to update like status.');
         }
     };
-//Functionality for the like button. Generates a reference to the specific recipe stored in recipeRef.
-//Fetches that recipes data with get, stores it in snapshot. extracts the recipe data with .val(). in particular, 
-//stores the liked by object to retrieve who has already liked the recipe, empty if likedBy doesn't exist. checks if the user's
-//id features in liked by, wont' progress if so. calulates the new likes value and stores it in updatedLikes. updates the recipe
-//with the new likes and likeBy values with set(). updates the recipes state to reflect the changes, iterates over the array with .map().
-//If the id matches the liked recipe, we update its likes and likedBy.
 
+    //Functionality for the like button. Generates a reference to the specific recipe stored in recipeRef.
+    //Fetches that recipes data with get, stores it in snapshot. extracts the recipe data with .val(). in particular, 
+    //stores the liked by object to retrieve who has already liked the recipe, empty if likedBy doesn't exist. checks if the user's
+    //id features in liked by, wont' progress if so. calulates the new likes value and stores it in updatedLikes. updates the recipe
+    //with the new likes and likeBy values with set(). updates the recipes state to reflect the changes, iterates over the array with .map().
+    //If the id matches the liked recipe, we update its likes and likedBy.
+
+
+    const filteredRecipes = recipes.filter(recipe =>
+        recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+    );
+    //functionality to filter the recipe results displayed to the user based on the content of the "Search Recipes"
+    //text field. optional chaining operator (? after recipe.name) protects against the possbility of accessing a 
+    //recipe without a name
 
 
 
@@ -206,6 +206,16 @@ export default function Recipes() {
                 Recipes
             </Typography>
 
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+                <TextField
+                    label="Search Recipes"
+                    variant="outlined"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={{ width: '300px' }}
+                />
+            </Box>
+
             {recipes.length === 0 ? (
                 <Typography variant="body1" align="center">
                     No recipes found.
@@ -213,7 +223,7 @@ export default function Recipes() {
             ) : (
                 <Box display="flex" justifyContent="center" sx={{ width: '100%' }}>
                     <Grid container spacing={2} justifyContent="flex-start" sx={{ width: '100%' }}>
-                        {recipes.map((recipe) => {
+                        {filteredRecipes.map((recipe) => {
                             const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
                             const alreadyLiked = recipe.likedBy?.[user?.uid];
 
@@ -286,25 +296,25 @@ export default function Recipes() {
                                                     <Button
                                                         size="small"
                                                         onClick={() => handleLike(recipe.id)}
-                                                        disabled={alreadyLiked}
                                                         sx={{
-                                                            backgroundColor: alreadyLiked ? 'red' : 'transparent',
-                                                            color: alreadyLiked ? 'white' : 'red',
-                                                            cursor: alreadyLiked ? 'not-allowed' : 'pointer',
-                                                            opacity: alreadyLiked ? 0.5 : 1,
+                                                            backgroundColor: alreadyLiked ? 'darkred' : 'lightcoral',
+                                                            color: 'white',
+                                                            cursor: 'pointer',
                                                             '&:hover': {
-                                                                backgroundColor: alreadyLiked ? 'red' : 'darkred',
-                                                                color: 'white',
-                                                            },
-                                                            '&.Mui-disabled': {
-                                                                backgroundColor: 'red',
-                                                                color: 'white',
+                                                                backgroundColor: alreadyLiked ? '#a50000' : '#ff7f7f', 
                                                             },
                                                         }}
                                                     >
                                                         <FavoriteIcon sx={{ fontSize: 20, mr: 1 }} />
-                                                        {alreadyLiked ? 'Liked' : 'Like'}
+                                                        {alreadyLiked ? 'Unlike' : 'Like'}
                                                     </Button>
+
+
+
+                                                    <Typography variant="body2" sx={{ ml: 1 }}>
+                                                        {recipe.likes || 0} Likes
+                                                    </Typography>
+
                                                 </>
                                             )}
 
