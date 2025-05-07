@@ -29,6 +29,8 @@ export default function Recipes() {
                     const data = snapshot.val();
                     const items = Object.entries(data).map(([id, value]) => ({
                         id,
+                        likes: value.likes || 0,
+                        likedBy: value.likedBy || {},
                         ...value,
                     }));
                     setRecipes(items);
@@ -41,9 +43,12 @@ export default function Recipes() {
                 setLoading(false);
             }
         };
-
+    
         fetchRecipes();
     }, []);
+    
+
+
 
     useEffect(() => {
         if (!user) return;
@@ -90,6 +95,58 @@ export default function Recipes() {
         }
     };
 
+    const handleLike = async (recipeId) => {
+        if (!user) {
+            alert('You must be logged in to like a recipe.');
+            return;
+        }
+
+        try {
+            const recipeRef = ref(db, `recipes/${recipeId}`);
+            const snapshot = await get(recipeRef);
+
+            if (!snapshot.exists()) {
+                alert('Recipe not found.');
+                return;
+            }
+
+            const recipeData = snapshot.val();
+            const likedBy = recipeData.likedBy || {};
+
+            if (likedBy[user.uid]) {
+                alert('You have already liked this recipe.');
+                return;
+            }
+
+            const updatedLikes = (recipeData.likes || 0) + 1;
+
+            await set(recipeRef, {
+                ...recipeData,
+                likes: updatedLikes,
+                likedBy: {
+                    ...likedBy,
+                    [user.uid]: true
+                }
+            });
+
+            setRecipes(prev =>
+                prev.map(recipe =>
+                    recipe.id === recipeId
+                        ? { ...recipe, likes: updatedLikes, likedBy: { ...likedBy, [user.uid]: true } }
+                        : recipe
+                )
+            );
+
+            alert('Recipe liked!');
+        } catch (error) {
+            console.error('Error liking recipe:', error);
+            alert('Failed to like recipe.');
+        }
+    };
+
+
+
+
     if (loading) return <p>Loading recipes...</p>;
 
     return (
@@ -119,23 +176,40 @@ export default function Recipes() {
                                 />
                                 <h3>{recipe.name}</h3>
                                 <p>{recipe.ingredients?.length || 0} ingredients</p>
+                                <p>Likes: {recipe.likes || 0}</p>
                                 <Link to={`/recipes/${recipe.id}`}>View Recipe</Link>{' '}
-                                {' '}
                                 {user && (
-                                    <button
-                                        onClick={() => handleSave(recipe.id)}
-                                        disabled={alreadySaved}
-                                        style={{
-                                            color: alreadySaved ? 'gray' : 'green',
-                                            cursor: alreadySaved ? 'not-allowed' : 'pointer',
-                                            opacity: alreadySaved ? 0.5 : 1
-                                        }}
-                                    >
-                                        {alreadySaved ? 'Saved' : 'Save'}
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={() => handleSave(recipe.id)}
+                                            disabled={alreadySaved}
+                                            style={{
+                                                color: alreadySaved ? 'gray' : 'green',
+                                                cursor: alreadySaved ? 'not-allowed' : 'pointer',
+                                                opacity: alreadySaved ? 0.5 : 1
+                                            }}
+                                        >
+                                            {alreadySaved ? 'Saved' : 'Save'}
+                                        </button>
+                                        {' '}
+                                        <button
+                                            onClick={() => handleLike(recipe.id)}
+                                            disabled={recipe.likedBy?.[user.uid]}
+                                            style={{
+                                                color: recipe.likedBy?.[user.uid] ? 'gray' : 'blue',
+                                                cursor: recipe.likedBy?.[user.uid] ? 'not-allowed' : 'pointer',
+                                                opacity: recipe.likedBy?.[user.uid] ? 0.5 : 1,
+                                                marginLeft: '8px'
+                                            }}
+                                        >
+                                            👍 {recipe.likedBy?.[user.uid] ? 'Liked' : 'Like'}
+                                        </button>
+                                    </>
                                 )}
 
+
                             </div>
+
                         );
                     })}
                 </div>
