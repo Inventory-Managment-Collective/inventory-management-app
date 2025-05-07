@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 //Imports similar to recipes, now with remove for deleting ingredients, should
-//the user so wish
+//the user so wish.
 
 export default function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
@@ -56,8 +56,9 @@ export default function Ingredients() {
     fetchIngredients();
   }, [user]);
 //useEffect set to run whenever the user state changes. if user exists, proceeds with acquiring
-//their ingredient list with get. stores the data of that retrieved in snapshot then translates it
-//into an array with Object.
+//their ingredient list with get. stores the data of that retrieved object in snapshot then translates it
+//into an array with Object.entries. This array is then stores in items which is then set as ingredients
+//with setIngredients
 
   const handleDelete = async (id) => {
     if (!user) return;
@@ -73,6 +74,9 @@ export default function Ingredients() {
       alert('Failed to delete ingredient.');
     }
   };
+  //functionality to delete a specified ingredeints. first asks the user to confirm the deletion. When confirmed, calls remove() 
+  //with the path to the particular ingredient in the current users node. the deleted entry is then filtere out of the displayed
+  //ingredients
 
   const handleAddStock = async (id, amountToAdd) => {
     if (!user) return;
@@ -93,6 +97,11 @@ export default function Ingredients() {
       alert('Failed to update quantity.');
     }
   };
+  //functionality to allow the user to add stock with the click of a button, instead of having to go into UpdateIngredient everytime.
+  //constructs the path to the ingredeint we are adding to with ref, stores it in ingredientRef. then uses ingredient ref in get to retrieve
+  //that ingredient. stores the current values for the ingredeint with .val() and derives the new quantity by adding amountToAdd, which is
+  //determined by the button the user clicks. Calls set to update the ingredeint with the new quantity in the ingredients node and finally updates 
+  //ingredients list to also use the new quantity.
 
   if (loading) return <p>Loading ingredients...</p>;
 

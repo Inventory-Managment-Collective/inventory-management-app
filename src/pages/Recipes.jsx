@@ -91,7 +91,7 @@ export default function Recipes() {
                 const snapshot = await get(ref(db, `users/${user.uid}/recipes`));
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    const savedIds = Object.values(data).map(recipe => recipe.name?.toLowerCase());
+                    const savedIds = Object.values(data).map(recipe => recipe.id);
                     setUserRecipes(savedIds);
                 } else {
                     setUserRecipes([]);
@@ -108,27 +108,57 @@ export default function Recipes() {
     //the user has already saved. 
 
     const handleSave = async (recipeId) => {
-        const confirmSave = window.confirm('Are you sure you want to save this recipe?');
-        if (!confirmSave) return;
-
+        if (!user) {
+            alert('You must be logged in to save a recipe.');
+            return;
+        }
+    
         try {
-            const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
-            if (!recipeSnap.exists()) {
-                alert('Recipe not found.');
-                return;
-            }
-
-            const recipeData = recipeSnap.val();
             const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
-            const newRef = push(userRecipesRef);
-            await set(newRef, recipeData);
+            const snapshot = await get(userRecipesRef);
+    
+            let savedRecipeKey = null;
+    
+            if (snapshot.exists()) {
+                const userRecipesData = snapshot.val();
+    
+                savedRecipeKey = Object.keys(userRecipesData).find(
+                    key => userRecipesData[key].id === recipeId
+                );
+            }
+    
+            if (savedRecipeKey) {
+                await remove(ref(db, `users/${user.uid}/recipes/${savedRecipeKey}`));
 
-            alert('Recipe saved to your list!');
+                setUserRecipes(prev => prev.filter(recipeIdInList => recipeIdInList !== recipeId));
+    
+                alert('Recipe removed from your list!');
+            } else {
+                const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
+                if (!recipeSnap.exists()) {
+                    alert('Recipe not found.');
+                    return;
+                }
+    
+                const recipeData = recipeSnap.val();
+                const newRef = push(userRecipesRef);
+                await set(newRef, { ...recipeData, id: recipeId });
+
+                setUserRecipes(prev => [...prev, recipeId]);
+    
+                alert('Recipe saved to your list!');
+            }
+    
         } catch (error) {
-            console.error('Error saving recipe:', error);
-            alert('Failed to save recipe.');
+            console.error('Error saving/removing recipe:', error);
+            alert('Failed to save/remove recipe.');
         }
     };
+    
+    
+
+
+
     //Functionality that allows the user to save a global recipe to their own personal recipe list.
     //fetches the particular recipes data from the recipes node with get. stores the info for that recipe
     //in recipe data. contructs the path to the users recipe node in userRecipesRef. newRef generates a fresh id 
@@ -227,7 +257,7 @@ export default function Recipes() {
                 <Box display="flex" justifyContent="center" sx={{ width: '100%' }}>
                     <Grid container spacing={1} justifyContent="flex-start" sx={{ width: '100%' }}>
                         {filteredRecipes.map((recipe) => {
-                            const alreadySaved = userRecipes.includes(recipe.name?.toLowerCase());
+                            const alreadySaved = userRecipes.includes(recipe.id);
                             const alreadyLiked = recipe.likedBy?.[user?.uid];
 
                             return (
@@ -281,20 +311,12 @@ export default function Recipes() {
                                                     <Button
                                                         size="small"
                                                         variant="contained"
-                                                        color={alreadySaved ? 'primary' : 'success'}
+                                                        color={alreadySaved ? 'secondary' : 'success'}
                                                         onClick={() => handleSave(recipe.id)}
-                                                        disabled={alreadySaved}
                                                         sx={{
-                                                            paddingX: alreadySaved ? 2 : 2.5,
-                                                            paddingY: 1,
-                                                            backgroundColor: alreadySaved ? 'blue' : 'primary.main',
+                                                            backgroundColor: alreadySaved ? 'secondary.main' : 'success.main',
                                                             '&:hover': {
-                                                                backgroundColor: alreadySaved ? 'success.main' : 'success.dark',
-                                                            },
-                                                            '&.Mui-disabled': {
-                                                                backgroundColor: alreadySaved ? 'primary.dark' : 'success.main',
-                                                                opacity: 1,
-                                                                color: 'white',
+                                                                backgroundColor: alreadySaved ? 'secondary.dark' : 'success.dark',
                                                             },
                                                         }}
                                                     >
