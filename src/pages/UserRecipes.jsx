@@ -107,16 +107,13 @@ export default function UserRecipes() {
         try {
             const globalRecipesRef = ref(db, 'recipes');
 
-            // Check if the recipe is already shared
             const isShared = sharedRecipes.includes(recipeId);
 
             if (isShared) {
-                // Unshare the recipe
                 await remove(ref(db, `recipes/${recipeId}`));
                 setSharedRecipes(prev => prev.filter(id => id !== recipeId));
                 alert('Recipe unshared successfully!');
             } else {
-                // Share the recipe
                 const userRecipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
 
                 if (!userRecipeSnap.exists()) {
