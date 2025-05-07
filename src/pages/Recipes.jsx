@@ -272,22 +272,25 @@ export default function Recipes() {
                                 >
                                     <Card
                                         sx={{
-                                            height: 300,
-                                            width: 380,
+                                            width: {
+                                                xs: 320,
+                                                sm: 380,
+                                            },
                                             display: 'flex',
                                             flexDirection: 'column',
                                         }}
                                     >
                                         <CardMedia
                                             component="img"
-                                            height="160"
-                                            width="100%"
                                             image={recipe.imageUrl}
                                             alt={recipe.name}
                                             sx={{
                                                 objectFit: 'cover',
                                                 objectPosition: 'center',
-                                                height: 140,
+                                                height: {
+                                                    xs: 100,
+                                                    sm: 140,
+                                                },
                                                 width: '100%',
                                             }}
                                         />
@@ -323,15 +326,19 @@ export default function Recipes() {
                                                         onClick={() => handleSave(recipe.id)}
                                                         sx={{
                                                             paddingX: alreadySaved ? 2 : 2.5,
-                                                            paddingY: 1,
+                                                            paddingY: { xs: 1.2, sm: 1 },
                                                             backgroundColor: alreadySaved ? 'primary.dark' : 'primary.main',
                                                             '&:hover': {
                                                                 backgroundColor: alreadySaved ? 'secondary.dark' : 'primary.dark',
                                                             },
                                                         }}
                                                     >
-                                                        <ArchiveIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
-                                                        {alreadySaved ? 'Saved' : 'Save'}
+                                                        <ArchiveIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
+                                                        {alreadySaved ? (
+                                                            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Saved</Box>
+                                                        ) : (
+                                                            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Save</Box>
+                                                        )}
                                                     </Button>
 
                                                     <Button
@@ -339,18 +346,22 @@ export default function Recipes() {
                                                         onClick={() => handleLike(recipe.id)}
                                                         sx={{
                                                             paddingX: alreadyLiked ? 2 : 2.5,
-                                                            paddingY: 1,
+                                                            paddingY: { xs: 1.2, sm: 1 },
                                                             backgroundColor: alreadyLiked ? 'secondary.main' : 'transparent',
                                                             color: alreadyLiked ? 'white' : 'secondary.main',
                                                             cursor: 'pointer',
                                                             '&:hover': {
                                                                 backgroundColor: alreadyLiked ? 'secondary.dark' : 'lightpink',
-                                                                color:'white'
+                                                                color: 'white'
                                                             },
                                                         }}
                                                     >
-                                                        <FavoriteIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
-                                                        {alreadyLiked ? 'Liked' : 'Like'}
+                                                        <FavoriteIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
+                                                        {alreadyLiked ? (
+                                                            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Liked</Box>
+                                                        ) : (
+                                                            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Like</Box>
+                                                        )}
                                                     </Button>
 
                                                     <Typography variant="body2" color='skyblue' border='1px solid skyblue' borderRadius={2} paddingX={1} paddingY={1}>

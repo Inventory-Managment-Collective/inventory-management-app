@@ -181,7 +181,10 @@ export default function UserRecipes() {
                                     <Card
                                         sx={{
                                             height: 390,
-                                            width: 420,
+                                            width: {
+                                                xs: 310,
+                                                sm: 420,
+                                            },
                                             display: 'flex',
                                             flexDirection: 'column',
                                             justifyContent: 'space-between',
@@ -213,13 +216,13 @@ export default function UserRecipes() {
                                                 variant="outlined"
                                                 size="small"
                                                 sx={{
-                                                    paddingX:2,
+                                                    paddingX: 2,
                                                     paddingY: 1,
                                                     '&:hover': {
-                                                            backgroundColor:'primary.main',
-                                                            borderColor: 'primary.main',
-                                                            color: 'white',
-                                                        },
+                                                        backgroundColor: 'primary.main',
+                                                        borderColor: 'primary.main',
+                                                        color: 'white',
+                                                    },
                                                 }}
                                             >
                                                 View
@@ -231,17 +234,17 @@ export default function UserRecipes() {
                                                     variant="outlined"
                                                     size="small"
                                                     sx={{
-                                                        paddingX:2,
+                                                        paddingX: 2,
                                                         paddingY: 1,
                                                         '&:hover': {
-                                                            backgroundColor:'lightpink',
+                                                            backgroundColor: 'lightpink',
                                                             borderColor: 'lightpink',
                                                             color: 'white',
                                                         },
                                                     }}
                                                 >
-                                                    <DeleteIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
-                                                    Delete
+                                                    <DeleteIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
+                                                    <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Delete</Box>
                                                 </Button>
                                                 <Button
                                                     variant="contained"
@@ -249,15 +252,19 @@ export default function UserRecipes() {
                                                     onClick={() => handleShare(recipe.id)}
                                                     size="small"
                                                     sx={{
-                                                        paddingX:  sharedRecipes.includes(recipe.id) ? 1.5 : 2.5,
+                                                        paddingX: sharedRecipes.includes(recipe.id) ? 1.5 : 2.5,
                                                         backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.dark' : 'secondary.main',
                                                         '&:hover': {
                                                             backgroundColor: sharedRecipes.includes(recipe.id) ? 'secondary.main' : 'secondary.dark',
                                                         },
                                                     }}
                                                 >
-                                                    <IosShareIcon sx={{ fontSize: 18, mr: 1, transform: 'translateY(-1px)' }} />
-                                                    {sharedRecipes.includes(recipe.id) ? 'Unshare' : 'Share'}
+                                                    <IosShareIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
+                                                    {sharedRecipes.includes(recipe.id) ? (
+                                                        <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Unshare</Box>
+                                                    ) : (
+                                                        <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Share</Box>
+                                                    )}
                                                 </Button>
 
                                             </Box>
