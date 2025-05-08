@@ -23,6 +23,7 @@ export default function Home() {
   const [userProfile, setUserProfile] = useState(null);
   const [recentRecipes, setRecentRecipes] = useState([]);
 
+
   const auth = getAuth();
 
   useEffect(() => {

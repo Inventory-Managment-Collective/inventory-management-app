@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from './QuarterMasterToast';
 
 
 import {
@@ -63,7 +64,7 @@ export default function UserRecipeListItem({ recipe, handleDelete }) {
             const recipeData = userRecipeSnap.val();
 
             if (recipeData.source === "global") {
-                toast.error("You cannot share or unshare a recipe you didn't create.");
+                toast(<QuarterMasterToast message="You cannot share or unshare a recipe you didn't create."/>)
                 return;
             }
 
@@ -73,7 +74,7 @@ export default function UserRecipeListItem({ recipe, handleDelete }) {
             if (isShared) {
                 await remove(globalRecipeRef);
                 setSharedRecipes(prev => prev.filter(id => id !== recipeId));
-                toast.success('Recipe unshared successfully!');
+                toast(<QuarterMasterToast message='Recipe unshared successfully!'/>)
             } else {
                 const recipe = {
                     ...recipeData,
@@ -82,7 +83,7 @@ export default function UserRecipeListItem({ recipe, handleDelete }) {
 
                 await set(globalRecipeRef, recipe);
                 setSharedRecipes(prev => [...prev, recipeId]);
-                toast.success('Recipe shared successfully!');
+                toast(<QuarterMasterToast message='Recipe shared successfully!'/>)
             }
 
         } catch (error) {
