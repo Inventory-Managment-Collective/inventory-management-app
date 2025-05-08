@@ -20,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
+import IngredientListItem from '../components/IngredientListItem';
 
 export default function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
