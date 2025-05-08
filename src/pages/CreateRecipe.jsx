@@ -2,7 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ref, push, set } from 'firebase/database';
 import { auth, db } from '../firebase';
-import { getAuth, onAuthStateChanged  } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  IconButton,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function CreateRecipe() {
   const [name, setName] = useState('');
@@ -11,7 +25,6 @@ export default function CreateRecipe() {
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-
   const auth = getAuth();
   //functions very similarly to createIngredeint but with cloudinary to allow the user to upload a picture
   //of their recipe from their machine, as opposed
@@ -58,18 +71,18 @@ export default function CreateRecipe() {
 
     let imageUrl = '';
 
-      if (imageFile) {
-        imageUrl = await uploadImageToCloudinary(imageFile);
-      }
+    if (imageFile) {
+      imageUrl = await uploadImageToCloudinary(imageFile);
+    }
 
     const validIngredients = ingredients.filter(
       ing => typeof ing.name === 'string' &&
-             ing.name.trim() !== '' &&
-             !isNaN(parseFloat(ing.quantity)) &&
-             typeof ing.unit === 'string' &&
-             ing.unit.trim() !== ''
+        ing.name.trim() !== '' &&
+        !isNaN(parseFloat(ing.quantity)) &&
+        typeof ing.unit === 'string' &&
+        ing.unit.trim() !== ''
     );
-    
+
 
     const validInstructions = instructions.filter(step => step.trim() !== '');
 
@@ -108,7 +121,6 @@ export default function CreateRecipe() {
     newInstructions[index] = value;
     setInstructions(newInstructions);
   };
-  //function to 
 
   const addInstruction = () => setInstructions([...instructions, '']);
 
@@ -123,72 +135,89 @@ export default function CreateRecipe() {
   };
 
   return (
-    <div>
-      <h2>Create a New Recipe</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Recipe Name:</label><br />
-          <input value={name} onChange={e => setName(e.target.value)} required />
-        </div>
-
-        <div>
-          <label>Image URL:</label><br />
-          <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile(e.target.files[0])}
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Create a New Recipe
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <TextField
+          label="Recipe Name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          required
         />
-        </div>
 
-        <div>
-          <h4>Instructions</h4>
+        <Button
+          variant="outlined"
+          component="label"
+        >
+          Upload Image
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => setImageFile(e.target.files[0])}
+          />
+        </Button>
+
+        <Box>
+          <Typography variant="h6">Instructions</Typography>
           {instructions.map((step, index) => (
-            <div key={index}>
-              <label>Step {index + 1}:</label><br />
-              <input
-                type="text"
-                value={step}
-                onChange={e => handleInstructionChange(index, e.target.value)}
-                required
-              />
-            </div>
+            <TextField
+              key={index}
+              label={`Step ${index + 1}`}
+              value={step}
+              onChange={e => handleInstructionChange(index, e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+              required
+            />
           ))}
-          <button type="button" onClick={addInstruction}>+ Add Instruction</button>
-        </div>
+          <Button onClick={addInstruction} startIcon={<AddIcon />} variant="outlined">
+            Add Instruction
+          </Button>
+        </Box>
 
-        <div>
-          <h4>Ingredients</h4>
+        <Box>
+          <Typography variant="h6">Ingredients</Typography>
           {ingredients.map((ing, index) => (
-            <div key={index}>
-              <input
-                placeholder="Name"
+            <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <TextField
+                label="Name"
                 value={ing.name}
                 onChange={e => handleIngredientChange(index, 'name', e.target.value)}
                 required
+                fullWidth
               />
-              <input
+              <TextField
+                label="Quantity"
                 type="number"
-                placeholder="Quantity"
                 value={ing.quantity}
                 onChange={e => handleIngredientChange(index, 'quantity', e.target.value)}
                 required
+                fullWidth
               />
-              <input
-                placeholder="Unit"
+              <TextField
+                label="Unit"
                 value={ing.unit}
                 onChange={e => handleIngredientChange(index, 'unit', e.target.value)}
                 required
+                fullWidth
               />
-            </div>
+            </Box>
           ))}
-          <button type="button" onClick={addIngredient}>+ Add Ingredient</button>
-        </div>
+          <Button onClick={addIngredient} startIcon={<AddIcon />} variant="outlined">
+            Add Ingredient
+          </Button>
+        </Box>
 
-        <br />
-        <button type="submit">Create Recipe</button>
-      </form>
-      <br/>
-      <Link to="/userRecipes">Back</Link>
-    </div>
+        <Button type="submit" variant="contained" color="primary">
+          Create Recipe
+        </Button>
+        <Button component={Link} to="/userRecipes" variant="outlined" color="secondary">
+          Back
+        </Button>
+      </Box>
+    </Container>
   );
 }

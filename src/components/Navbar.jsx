@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import { ref, get, remove } from 'firebase/database';
@@ -33,6 +33,7 @@ function ResponsiveAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [userProfile, setUserProfile] = React.useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -119,16 +120,32 @@ function ResponsiveAppBar() {
             gap: 2,
           }}
         >
-          {pages.map((page) => (
-            <Button
-              key={page.label}
-              component={Link}
-              to={page.path}
-              sx={{ color: 'white' }}
-            >
-              {page.label}
-            </Button>
-          ))}
+          {pages.map((page) => {
+            const isActive = location.pathname === page.path;
+            return (
+              <Button
+                key={page.label}
+                component={Link}
+                to={page.path}
+                sx={{
+                  color: isActive ? 'secondary.main' : 'white',
+                  fontWeight: isActive ? 'bold' : 'normal',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05rem',
+                  borderBottom: isActive ? '2px solid' : '2px solid transparent',
+                  borderRadius: 0,
+                  '&:hover': {
+                    color: 'secondary.main',
+                    borderBottom: '2px solid',
+                    borderColor: 'secondary.main',
+                    backgroundColor: 'transparent',
+                  },
+                }}
+              >
+                {page.label}
+              </Button>
+            );
+          })}
         </Box>
 
 

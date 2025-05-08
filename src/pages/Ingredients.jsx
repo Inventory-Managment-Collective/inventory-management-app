@@ -3,31 +3,37 @@ import { ref, get, remove, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-//Imports similar to recipes, now with remove for deleting ingredients, should
-//the user so wish.
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Stack,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
-//Initialisation of states, ingredients will hold the ingredients retrieved from
-//the RTDB, searchTerm will store the input of the search box to filter the list
-//of ingredients
-
   const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      setLoading(false); 
+      setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
-//Keeps track of the current user, same as Recipes. Loading is set to false so that when
-//a not logged in user sees the page we can conditonally render the log in and sign up links.
-
 
   useEffect(() => {
     if (!user) return;
@@ -35,13 +41,9 @@ export default function Ingredients() {
     const fetchIngredients = async () => {
       try {
         const snapshot = await get(ref(db, `users/${user.uid}/ingredients`));
-
         if (snapshot.exists()) {
           const data = snapshot.val();
-          const items = Object.entries(data).map(([id, value]) => ({
-            id,
-            ...value,
-          }));
+          const items = Object.entries(data).map(([id, value]) => ({ id, ...value }));
           setIngredients(items);
         } else {
           setIngredients([]);
@@ -55,28 +57,20 @@ export default function Ingredients() {
 
     fetchIngredients();
   }, [user]);
-//useEffect set to run whenever the user state changes. if user exists, proceeds with acquiring
-//their ingredient list with get. stores the data of that retrieved object in snapshot then translates it
-//into an array with Object.entries. This array is then stores in items which is then set as ingredients
-//with setIngredients
 
   const handleDelete = async (id) => {
     if (!user) return;
-
     const confirmDelete = window.confirm('Are you sure you want to delete this ingredient?');
     if (!confirmDelete) return;
 
     try {
       await remove(ref(db, `users/${user.uid}/ingredients/${id}`));
-      setIngredients(prev => prev.filter(item => item.id !== id));
+      setIngredients((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       console.error('Error deleting ingredient:', error);
       alert('Failed to delete ingredient.');
     }
   };
-  //functionality to delete a specified ingredeints. first asks the user to confirm the deletion. When confirmed, calls remove() 
-  //with the path to the particular ingredient in the current users node. the deleted entry is then filtere out of the displayed
-  //ingredients
 
   const handleAddStock = async (id, amountToAdd) => {
     if (!user) return;
@@ -88,8 +82,8 @@ export default function Ingredients() {
         const current = snapshot.val();
         const updatedQuantity = parseFloat(current.quantity) + amountToAdd;
         await set(ingredientRef, { ...current, quantity: updatedQuantity });
-        setIngredients(prev =>
-          prev.map(item => item.id === id ? { ...item, quantity: updatedQuantity } : item)
+        setIngredients((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, quantity: updatedQuantity } : item))
         );
       }
     } catch (error) {
@@ -97,78 +91,105 @@ export default function Ingredients() {
       alert('Failed to update quantity.');
     }
   };
-  //functionality to allow the user to add stock with the click of a button, instead of having to go into UpdateIngredient everytime.
-  //constructs the path to the ingredeint we are adding to with ref, stores it in ingredientRef. then uses ingredient ref in get to retrieve
-  //that ingredient. stores the current values for the ingredeint with .val() and derives the new quantity by adding amountToAdd, which is
-  //determined by the button the user clicks. Calls set to update the ingredeint with the new quantity in the ingredients node and finally updates 
-  //ingredients list to also use the new quantity.
 
-  if (loading) return <p>Loading ingredients...</p>;
+  if (loading) return <Typography>Loading ingredients...</Typography>;
 
   return (
-    <div>
-      <h2>Ingredients List</h2>
+    <Container sx={{ mt: 5 }}>
+      <Typography variant="h4" gutterBottom>
+        Ingredients
+      </Typography>
 
       {user ? (
         <>
-          <div>
-            <label htmlFor="search">Search Ingredients: </label>
-            <input
-              id="search"
-              type="text"
-              placeholder="Enter name..."
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              label="Search Ingredients"
+              variant="outlined"
+              fullWidth
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
-          <Link to="/createIngredient">Add an Ingredient</Link>
+          </Box>
+
+          <Button
+            variant="contained"
+            component={Link}
+            to="/createIngredient"
+            startIcon={<AddIcon />}
+            sx={{ mb: 3 }}
+          >
+            Add Ingredient
+          </Button>
 
           {ingredients.length === 0 ? (
-            <p>No ingredients found.</p>
+            <Typography>No ingredients found.</Typography>
           ) : (
-            <ul>
+            <List>
               {ingredients
-                .filter(ingredient =>
+                .filter((ingredient) =>
                   ingredient?.name.toLowerCase().startsWith(searchTerm.toLowerCase())
                 )
-                .map(ingredient => (
-                  <li key={ingredient.id}>
-                    <strong>{ingredient.name}</strong> — {ingredient.quantity} {ingredient.unit}
-                    <br />
-                    <Link to={`/updateIngredient/${ingredient.id}`}>Edit</Link>
-                    {' '}
-                    {ingredient.unit === 'grams' && (
-                      <>
-                        <button onClick={() => handleAddStock(ingredient.id, 100)}>+100g</button>
-                        <button onClick={() => handleAddStock(ingredient.id, 500)}>+500g</button>
-                      </>
-                    )}
-                    {ingredient.unit === 'ml' && (
-                      <>
-                        <button onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</button>
-                        <button onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</button>
-                      </>
-                    )}
-                    {ingredient.unit === 'items' && (
-                      <>
-                        <button onClick={() => handleAddStock(ingredient.id, 1)}>+1</button>
-                        <button onClick={() => handleAddStock(ingredient.id, 6)}>+6</button>
-                      </>
-                    )}
-                    <button onClick={() => handleDelete(ingredient.id)}>Delete</button>
-                  </li>
+                .map((ingredient) => (
+                  <ListItem key={ingredient.id} divider alignItems="flex-start">
+                    <ListItemText
+                      primary={`${ingredient.name} — ${ingredient.quantity} ${ingredient.unit}`}
+                      secondary={
+                        <Stack direction="row" spacing={1} mt={1}>
+                          {ingredient.unit === 'grams' && (
+                            <>
+                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 100)}>+100g</Button>
+                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 500)}>+500g</Button>
+                            </>
+                          )}
+                          {ingredient.unit === 'ml' && (
+                            <>
+                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</Button>
+                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</Button>
+                            </>
+                          )}
+                          {ingredient.unit === 'items' && (
+                            <>
+                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 1)}>+1</Button>
+                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 6)}>+6</Button>
+                            </>
+                          )}
+                        </Stack>
+                      }
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        component={Link}
+                        to={`/updateIngredient/${ingredient.id}`}
+                        edge="end"
+                        aria-label="edit"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleDelete(ingredient.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
                 ))}
-            </ul>
+            </List>
           )}
         </>
       ) : (
-        <div>
-          <p>You must be logged in to view your ingredients.</p>
-          <Link to="/logIn">Log In</Link>
-          <br />
-          <Link to="/signUp">Sign Up</Link>
-        </div>
+        <Box>
+          <Typography>You must be logged in to view your ingredients.</Typography>
+          <Button component={Link} to="/logIn" sx={{ mr: 2 }}>
+            Log In
+          </Button>
+          <Button component={Link} to="/signUp" variant="outlined">
+            Sign Up
+          </Button>
+        </Box>
       )}
-    </div>
+    </Container>
   );
 }

@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Link as MuiLink,
+  Paper,
+} from '@mui/material';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,28 +29,55 @@ export default function Login() {
     }
   };
 
-
   return (
-    <div>
-      <h2>Login</h2>
-      <Link to="/signUp">Sign Up</Link>
-      <form onSubmit={handleLogin}>
-        <input
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          placeholder="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+      bgcolor="#f5f5f5"
+    >
+      <Paper elevation={3} sx={{ padding: 4, maxWidth: 400, width: "100%" }}>
+        <Typography variant="h5" gutterBottom>
+          Login
+        </Typography>
+        <MuiLink component={Link} to="/signUp" underline="hover">
+          Don't have an account? Sign Up
+        </MuiLink>
 
-        <button type="submit">Log In</button>
-      </form>
-      <br />
-      <Link to="/">Back</Link>
-    </div>
+        <Box component="form" onSubmit={handleLogin} mt={2}>
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Log In
+          </Button>
+        </Box>
+
+        <MuiLink component={Link} to="/" underline="hover" display="block" mt={2}>
+          Back to Home
+        </MuiLink>
+      </Paper>
+    </Box>
   );
 }

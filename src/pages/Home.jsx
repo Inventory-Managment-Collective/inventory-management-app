@@ -17,7 +17,7 @@ export default function Home() {
 
     return (
         <div>
-          <h1>Welcome to My Pantry App</h1>
+          <h1>Welcome to Quartermaster</h1>
           <p>Manage your ingredients and recipes.</p>
     
           <ul>
