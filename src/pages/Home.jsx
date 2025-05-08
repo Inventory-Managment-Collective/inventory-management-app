@@ -36,7 +36,7 @@ export default function Home() {
             const recipesArray = Object.entries(data).map(([id, recipe]) => ({ id, ...recipe }));
             (async () => {
               const likeCountPromises = recipesArray.map(async (recipe) => {
-                const sharedRef = ref(db, `sharedRecipes/${recipe.id}/likes`);
+                const sharedRef = ref(db, `recipes/${recipe.id}/likes`);
                 try {
                   const likeSnapshot = await get(sharedRef);
                   console.log(`Fetched likes for ${recipe.id}:`, likeSnapshot.val());

@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Link as RouterLink } from 'react-router-dom';
-import { Link } from '@mui/material';
-import { ref, get, remove } from 'firebase/database';
+import { ref, get } from 'firebase/database';
 import { db } from '../firebase';
+
+import {
+  Box,
+  Typography,
+  Avatar,
+  Grid,
+  Link,
+  Paper,
+  CircularProgress,
+  Divider,
+} from '@mui/material';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -32,40 +42,53 @@ export default function Profile() {
     return () => unsubscribe();
   }, []);
 
+  if (!user || !userProfile) {
+    return (
+      <Box display="flex" justifyContent="center" mt={6}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <>
-      {user && userProfile ? (
-        <div>
-          <h2>Hello {userProfile.username}!</h2>
-          {userProfile.profilePicture ? (
-            <img
+    <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: 'auto', mt: 6 }}>
+      <Typography variant="h4" gutterBottom>
+        Hello, {userProfile.username}!
+      </Typography>
+
+      <Divider sx={{ mb: 3 }} />
+
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={4}>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <Avatar
               src={userProfile.profilePicture}
               alt="Profile"
-              style={{ width: '150px', height: '150px', borderRadius: '50%' }}
+              sx={{ width: 150, height: 150, mb: 2 }}
             />
-          ) : (
-            <p>No profile picture uploaded.</p>
-          )}
-          {userProfile.about ? (
+            <Typography variant="subtitle1" color="text.secondary">
+              {user.email}
+            </Typography>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={8}>
+          {userProfile.about && (
             <>
-            <h3>About:</h3>
-            <p>{userProfile.about}</p>
-            </>
-          ) : (
-            <>
+              <Typography variant="h6" gutterBottom>
+                About
+              </Typography>
+              <Typography variant="body1">{userProfile.about}</Typography>
             </>
           )}
-          <h3>Email:</h3>
-          <p>{user.email}</p>
-          <br/>
-          <Link component={RouterLink} to="/editProfile">
-            Edit Profile
-          </Link>
-        </div>
-      ) : (
-        <p>Loading profile...</p>
-      )}
-    </>
+        </Grid>
+      </Grid>
+
+      <Box mt={4}>
+        <Link component={RouterLink} to="/editProfile" variant="button">
+          Edit Profile
+        </Link>
+      </Box>
+    </Paper>
   );
 }
