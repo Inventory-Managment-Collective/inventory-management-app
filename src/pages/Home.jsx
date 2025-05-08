@@ -34,7 +34,6 @@ export default function Home() {
           const data = snapshot.val();
           if (data) {
             const recipesArray = Object.entries(data).map(([id, recipe]) => ({ id, ...recipe }));
-
             (async () => {
               const likeCountPromises = recipesArray.map(async (recipe) => {
                 const sharedRef = ref(db, `sharedRecipes/${recipe.id}/likes`);
@@ -53,15 +52,6 @@ export default function Home() {
             })();
           } else {
             setRecentRecipes([]);
-          }
-        });
-
-        const userMetaRef = ref(db, `users/${firebaseUser.uid}`);
-        onValue(userMetaRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setSavedRecipeIds(data.savedRecipes || []);
-            setLikedRecipeIds(data.likedRecipes || []);
           }
         });
       }
