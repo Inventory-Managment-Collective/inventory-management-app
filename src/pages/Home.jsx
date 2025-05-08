@@ -54,6 +54,15 @@ export default function Home() {
             setRecentRecipes([]);
           }
         });
+
+        const userMetaRef = ref(db, `users/${firebaseUser.uid}`);
+        onValue(userMetaRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setSavedRecipeIds(data.savedRecipes || []);
+            setLikedRecipeIds(data.likedRecipes || []);
+          }
+        });
       }
     });
 
