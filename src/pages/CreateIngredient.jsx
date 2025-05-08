@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 export default function CreateIngredient() {
   const [name, setName] = useState('');
@@ -29,7 +30,7 @@ export default function CreateIngredient() {
     e.preventDefault();
 
     if (!name || !quantity || !unit) {
-      toast.error('Please fill in all fields.');
+      toast(<QuarterMasterToast message='Please fill in all fields.'/>)
       return;
     }
 
@@ -43,11 +44,12 @@ export default function CreateIngredient() {
       const userIngredientsRef = ref(db, `users/${user.uid}/ingredients`);
       const newRef = push(userIngredientsRef);
       await set(newRef, newIngredient);
-      toast.success('Ingredient added!');
+      toast(<QuarterMasterToast message={`${newIngredient.name} added`}/>)
+      
       navigate('/ingredients');
     } catch (error) {
       console.error('Error adding ingredient:', error);
-      toast.error('Failed to add ingredient.');
+      toast(<QuarterMasterToast message='Failed to add ingredient.'/>)
     }
   };
 

@@ -4,6 +4,7 @@ import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 import {
   Container,
   Typography,
@@ -71,11 +72,10 @@ export default function EditProfile() {
       await update(ref(db, `users/${user.uid}`), {
         profilePicture: imageUrl,
       });
-
-      toast.success("Profile picture updated!");
+      toast(<QuarterMasterToast message='Profile picture updated'/>)
       navigate('/profile');
     } catch (err) {
-      toast.error('Failed to update profile picture: ' + err.message);
+      toast(<QuarterMasterToast message='Failed to update profile picture: '/>)
     } finally {
       setLoading(false);
     }

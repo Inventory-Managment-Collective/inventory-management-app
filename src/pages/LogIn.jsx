@@ -11,6 +11,9 @@ import {
   Paper,
 } from '@mui/material';
 
+import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,10 +22,10 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) return alert("Please enter both email and password");
+    if (!email || !password) return toast(<QuarterMasterToast message='Please enter both email and password.'/>);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Logged in!");
+      toast(<QuarterMasterToast message='Logged in!'/>)
       navigate("/");
     } catch (err) {
       alert(err.message);

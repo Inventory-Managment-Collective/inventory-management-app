@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 import Comments from '../components/Comments';
 import RecipeListItem from '../components/RecipeListItem';
 
@@ -19,9 +20,6 @@ import {
     Button,
     Box,
 } from '@mui/material';
-
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ArchiveIcon from '@mui/icons-material/Archive';
 
 //Imports for all the stuff we need for the page, useEffect and useState hooks,
 //ref, get, push and set firebase databse for communicating with teh RTDB
@@ -112,7 +110,7 @@ export default function Recipes() {
 
     const handleLike = async (recipeId) => {
         if (!user) {
-            toast.error('You must be logged in to like a recipe.');
+            toast(<QuarterMasterToast message='You must be logged in to like a recipe'/>)
             return;
         }
 
@@ -121,7 +119,7 @@ export default function Recipes() {
             const snapshot = await get(recipeRef);
 
             if (!snapshot.exists()) {
-                toast.error('Recipe not found.');
+                toast(<QuarterMasterToast message='Recipe not found.'/>)
                 return;
             }
 
@@ -156,7 +154,7 @@ export default function Recipes() {
 
         } catch (error) {
             console.error('Error toggling like:', error);
-            toast.error('Failed to update like status.');
+            toast(<QuarterMasterToast message='Failed to update liked status.'/>)
         }
     };
 

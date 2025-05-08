@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
 import { db } from '../firebase';
+import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 import {
   Container,
@@ -24,7 +26,7 @@ export default function RecipeDetails() {
       try {
         const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
         if (!recipeSnap.exists()) {
-          alert('Recipe not found.');
+          toast(<QuarterMasterToast message='Recipe not found.'/>)
           return;
         }
 

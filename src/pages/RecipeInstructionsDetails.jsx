@@ -4,6 +4,7 @@ import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 export default function RecipeInstructionDetails() {
     const { recipeId } = useParams();
@@ -30,7 +31,7 @@ export default function RecipeInstructionDetails() {
             try {
                 const recipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
                 if (!recipeSnap.exists()) {
-                    toast.error('Recipe not found.');
+                    toast(<QuarterMasterToast message='Recipe not found.'/>)
                     return;
                 }
 
@@ -80,16 +81,16 @@ export default function RecipeInstructionDetails() {
                 const stockEntry = ingredientStock[key];
 
                 if (!stockEntry || stockEntry.quantity < ing.quantity) {
-                    toast.error(`Not enough ${ing.name} in stock.`);
+                    toast(<QuarterMasterToast message={`Not enough ${ing.name} in stock.`}/>)
                     return;
                 }
-                toast.success(`${ing.quantity} ${ing.name} removed`)
+                toast(<QuarterMasterToast message={`${ing.quantity} ${ing.name} removed`}/>)
                 const newQty = stockEntry.quantity - ing.quantity;
                 updates[`users/${user.uid}/ingredients/${stockEntry.id}/quantity`] = newQty;
             }
 
             await update(ref(db), updates);
-            toast.success('Recipe made! Inventory updated.');
+            toast(<QuarterMasterToast message={`${recipe.name} made!`}/>)
 
             const updatedSnap = await get(ref(db, `users/${user.uid}/ingredients`));
             if (updatedSnap.exists()) {

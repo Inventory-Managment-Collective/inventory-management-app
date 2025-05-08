@@ -57,7 +57,7 @@ export default function UserRecipeListItem({ recipe, handleDelete }) {
             const userRecipeSnap = await get(userRecipeRef);
 
             if (!userRecipeSnap.exists()) {
-                toast.error('Recipe not found.');
+                toast(<QuarterMasterToast message='Recipe not found.'/>)
                 return;
             }
 
@@ -74,7 +74,7 @@ export default function UserRecipeListItem({ recipe, handleDelete }) {
             if (isShared) {
                 await remove(globalRecipeRef);
                 setSharedRecipes(prev => prev.filter(id => id !== recipeId));
-                toast(<QuarterMasterToast message='Recipe unshared successfully!'/>)
+                toast(<QuarterMasterToast message={`${recipeData.name} unshared successfully!`}/>)
             } else {
                 const recipe = {
                     ...recipeData,
@@ -83,7 +83,7 @@ export default function UserRecipeListItem({ recipe, handleDelete }) {
 
                 await set(globalRecipeRef, recipe);
                 setSharedRecipes(prev => [...prev, recipeId]);
-                toast(<QuarterMasterToast message='Recipe shared successfully!'/>)
+                toast(<QuarterMasterToast message={`${recipeData.name} shared successfully!`}/>)
             }
 
         } catch (error) {

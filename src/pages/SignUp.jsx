@@ -12,6 +12,7 @@ import {
   Link as MuiLink,
 } from '@mui/material';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ export default function SignUp() {
   };
 
   const handleSignup = async () => {
-    if (!email || !password || !username) return toast.error("Please enter both email and password");
+    if (!email || !password || !username) return toast(<QuarterMasterToast message='Please enter both email and password.'/>);
 
     try {
       let imageUrl = '';
@@ -59,11 +60,10 @@ export default function SignUp() {
         ingredients: {},
         recipes: {}
       });
-
-      toast.success("Account created!");
+      toast(<QuarterMasterToast message='Account created!'/>)
       navigate("/");
     } catch (err) {
-      toast.error(err.message);
+      alert(err.message);
     }
   };
 

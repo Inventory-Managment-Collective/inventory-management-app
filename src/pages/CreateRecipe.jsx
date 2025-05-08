@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 export default function CreateRecipe() {
   const [name, setName] = useState('');
@@ -64,7 +65,7 @@ export default function CreateRecipe() {
     e.preventDefault();
 
     if (!name || instructions.length === 0 || ingredients.length === 0) {
-      toast.error('Please fill in all fields.');
+      toast(<QuarterMasterToast message='Please fill in all fields.'/>)
       return;
     }
 
@@ -103,11 +104,11 @@ export default function CreateRecipe() {
       const recipesRef = ref(db, `users/${user.uid}/recipes`);
       const newRef = push(recipesRef);
       await set(newRef, newRecipe);
-      toast.success('Recipe created!');
+      toast(<QuarterMasterToast message={`Recipe for ${newRecipe.name} added`}/>)
       navigate('/userRecipes');
     } catch (error) {
       console.error('Error creating recipe:', error);
-      toast.error('Failed to create recipe.');
+      toast(<QuarterMasterToast message={'Failed to create recipe.'}/>)
     }
   };
 

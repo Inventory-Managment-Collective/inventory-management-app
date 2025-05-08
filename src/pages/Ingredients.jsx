@@ -16,10 +16,9 @@ import {
   IconButton,
   Stack,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 import IngredientListItem from '../components/IngredientListItem';
 
 export default function Ingredients() {
@@ -59,6 +58,50 @@ export default function Ingredients() {
 
     fetchIngredients();
   }, [user]);
+
+  const handleAddStock = async (id, amountToAdd) => {
+    if (!user) return;
+
+    try {
+      const ingredientRef = ref(db, `users/${user.uid}/ingredients/${id}`);
+      const snapshot = await get(ingredientRef);
+
+      if (snapshot.exists()) {
+        const current = snapshot.val();
+        const updatedQuantity = parseFloat(current.quantity) + amountToAdd;
+
+        await set(ingredientRef, { ...current, quantity: updatedQuantity });
+
+        // Update local state
+        setIngredients((prev) =>
+          prev.map((item) => item.id === id ? { ...item, quantity: updatedQuantity } : item)
+        );
+
+        toast(<QuarterMasterToast message={`Added ${amountToAdd} ${current.unit} to ${current.name}`} />);
+      }
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      toast(<QuarterMasterToast message='Failed to update quantity.' />);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!user) return;
+
+    const confirmDelete = window.confirm('Are you sure you want to delete this ingredient?');
+    if (!confirmDelete) return;
+
+    try {
+      await remove(ref(db, `users/${user.uid}/ingredients/${id}`));
+
+      setIngredients((prev) => prev.filter((item) => item.id !== id));
+
+      toast(<QuarterMasterToast message="Deleted Ingredient" />);
+    } catch (error) {
+      console.error('Error deleting ingredient:', error);
+      toast(<QuarterMasterToast message="Failed to delete ingredient" />);
+    }
+  };
 
 
   if (loading) return <Typography>Loading ingredients...</Typography>;
@@ -103,6 +146,8 @@ export default function Ingredients() {
                   <IngredientListItem
                     key={ingredient.id}
                     ingredient={ingredient}
+                    handleAddStock={handleAddStock}
+                    handleDelete={handleDelete}
                   />
                 ))}
             </List>

@@ -14,6 +14,9 @@ import {
   Paper,
 } from '@mui/material';
 
+import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
+
 export default function UpdateIngredient() {
   const { ingredientId } = useParams();
   const navigate = useNavigate();
@@ -48,12 +51,12 @@ export default function UpdateIngredient() {
           setUnit(data.unit || '');
           setCategory(data.category || '');
         } else {
-          alert('Ingredient not found');
+          toast(<QuarterMasterToast message='Ingredient not found.'/>)
           navigate('/ingredients');
         }
       } catch (error) {
         console.error('Error fetching ingredient:', error);
-        alert('Failed to load ingredient');
+        toast(<QuarterMasterToast message='Failed to load ingredient.'/>)
         navigate('/ingredients');
       } finally {
         setLoading(false);
@@ -75,11 +78,11 @@ export default function UpdateIngredient() {
 
     try {
       await update(ref(db, `users/${user.uid}/ingredients/${ingredientId}`), updatedData);
-      alert('Ingredient updated!');
+      toast(<QuarterMasterToast message={`${updatedData.name} updated`}/>)
       navigate('/ingredients');
     } catch (error) {
       console.error('Error updating ingredient:', error);
-      alert('Failed to update ingredient');
+      toast(<QuarterMasterToast message='Failed to update ingredient.'/>)
     }
   };
 

@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import QuarterMasterToast from './QuarterMasterToast';
 import Comments from '../components/Comments';
 
 import {
@@ -60,7 +61,7 @@ export default function RecipeListItem({ recipe, handleLike, alreadyLiked }) {
 
     const handleSave = async (recipeId) => {
             if (!user) {
-                toast.error('You must be logged in to save a recipe.');
+                toast(<QuarterMasterToast message={'You must be logged in to save a recipe.'}/>)
                 return;
             }
     
@@ -68,6 +69,7 @@ export default function RecipeListItem({ recipe, handleLike, alreadyLiked }) {
                 const userRecipesRef = ref(db, `users/${user.uid}/recipes`);
                 const snapshot = await get(userRecipesRef);
     
+                const recipe = snapshot.val();
                 let savedRecipeKey = null;
     
                 if (snapshot.exists()) {
@@ -79,19 +81,22 @@ export default function RecipeListItem({ recipe, handleLike, alreadyLiked }) {
     
                 if (savedRecipeKey) {
                     // Remove the recipe
+                    const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
+                    const recipeData = recipeSnap.val();
                     await remove(ref(db, `users/${user.uid}/recipes/${savedRecipeKey}`));
                     setUserRecipes(prev => prev.filter(id => id !== recipeId));
-                    toast.success("Un-saved recipe")
+                    toast(<QuarterMasterToast message={`Removed ${recipeData.name} from your list`}/>)
                 } else {
                     // Save the recipe
                     const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
-                    toast.success("Saved recipe")
+                    const recipeData = recipeSnap.val();
+                    toast(<QuarterMasterToast message={`Saved ${recipeData.name} to your list`}/>)
                     if (!recipeSnap.exists()) {
-                        toast.error('Recipe not found.');
+                        toast(<QuarterMasterToast message='Recipe not found.'/>)
                         return;
                     }
     
-                    const recipeData = recipeSnap.val();
+
     
                     const newRef = ref(db, `users/${user.uid}/recipes/${recipeId}`);
                     await set(newRef, { ...recipeData, id: recipeId, source: "global" });

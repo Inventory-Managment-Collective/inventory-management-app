@@ -13,6 +13,9 @@ import {
   Divider,
 } from '@mui/material';
 
+import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
+
 export default function UpdateRecipe() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
@@ -51,12 +54,12 @@ export default function UpdateRecipe() {
           setInstructions(data.instructions || ['']);
           setIngredients(data.ingredients || [{ name: '', quantity: '', unit: '' }]);
         } else {
-          alert('Recipe not found.');
+          toast(<QuarterMasterToast message='Recipe not found.'/>)
           navigate('/userRecipes');
         }
       } catch (error) {
         console.error('Error fetching recipe:', error);
-        alert('Failed to load recipe.');
+        toast(<QuarterMasterToast message='Failed to load recipe.'/>)
         navigate(`/userRecipes/${recipeId}`);
       } finally {
         setLoading(false);
@@ -104,11 +107,11 @@ export default function UpdateRecipe() {
 
     try {
       await update(ref(db, `users/${user.uid}/recipes/${recipeId}`), updatedRecipe);
-      alert('Recipe updated!');
+      toast(<QuarterMasterToast message={`${updatedRecipe.name} updated!`}/>)
       navigate(`/userRecipes/${recipeId}`);
     } catch (error) {
       console.error('Error updating recipe:', error);
-      alert('Failed to update recipe.');
+      toast(<QuarterMasterToast message='Failed to update recipe.'/>)
     }
   };
 

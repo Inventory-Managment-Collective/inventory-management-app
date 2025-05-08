@@ -16,6 +16,8 @@ import {
   Link,
   Divider
 } from '@mui/material';
+import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 export default function UserRecipeDetails() {
   const { recipeId } = useParams();
@@ -42,7 +44,7 @@ export default function UserRecipeDetails() {
       try {
         const recipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
         if (!recipeSnap.exists()) {
-          alert('Recipe not found.');
+          toast(<QuarterMasterToast message='Recipe not found.'/>)
           return;
         }
 
@@ -92,7 +94,7 @@ export default function UserRecipeDetails() {
         const stockEntry = ingredientStock[key];
 
         if (!stockEntry || stockEntry.quantity < ing.quantity) {
-          alert(`Not enough ${ing.name} in stock.`);
+          toast(<QuarterMasterToast message={`Not enough ${ing.name} in stock.`}/>)
           return;
         }
 
@@ -101,7 +103,7 @@ export default function UserRecipeDetails() {
       }
 
       await update(ref(db), updates);
-      alert('Recipe made! Inventory updated.');
+      toast(<QuarterMasterToast message={`${recipe.name} made!`}/>)
 
       const updatedSnap = await get(ref(db, `users/${user.uid}/ingredients`));
       if (updatedSnap.exists()) {
@@ -116,7 +118,7 @@ export default function UserRecipeDetails() {
       }
     } catch (error) {
       console.error('Error updating inventory:', error);
-      alert('Failed to make recipe.');
+      toast(<QuarterMasterToast message='Failed to make recipe.'/>)
     }
   };
 
