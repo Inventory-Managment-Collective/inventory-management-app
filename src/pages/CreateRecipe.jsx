@@ -95,7 +95,8 @@ export default function CreateRecipe() {
         quantity: parseFloat(ing.quantity),
         unit: ing.unit,
       })),
-      source: "user"
+      source: "user",
+      comments: {}
     };
 
     try {
