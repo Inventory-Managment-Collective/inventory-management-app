@@ -4,11 +4,21 @@ import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  TextField,
+  Avatar,
+  CircularProgress,
+} from '@mui/material';
 
 export default function EditProfile() {
   const [user, setUser] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [currentPicture, setCurrentPicture] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const auth = getAuth();
@@ -50,6 +60,7 @@ export default function EditProfile() {
   const handleSubmit = async () => {
     if (!user) return;
 
+    setLoading(true);
     try {
       let imageUrl = currentPicture;
 
@@ -65,36 +76,57 @@ export default function EditProfile() {
       navigate('/profile');
     } catch (err) {
       toast.error('Failed to update profile picture: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Edit Profile Picture</h2>
+    <Container sx={{ mt: 5 }}>
+      <Typography variant="h4" gutterBottom>
+        Edit Profile Picture
+      </Typography>
 
-      {currentPicture && (
-        <img
-          src={currentPicture}
-          alt="Current Profile"
-          style={{ width: '150px', height: '150px', borderRadius: '50%' }}
-        />
-      )}
-
-      <form>
-        <div>
-          <label>New profile picture: </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImageFile(e.target.files[0])}
+      <Box display="flex" justifyContent="center" mb={3}>
+        {currentPicture ? (
+          <Avatar
+            alt="Current Profile"
+            src={currentPicture}
+            sx={{ width: 150, height: 150 }}
           />
-        </div>
+        ) : (
+          <CircularProgress />
+        )}
+      </Box>
 
-        <button type="button" onClick={handleSubmit}>Update</button>
-      </form>
+      <Box mb={3}>
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          Upload a new profile picture:
+        </Typography>
+        <TextField
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
+          fullWidth
+        />
+      </Box>
 
-      <br />
-      <Link to="/profile">Back</Link>
-    </div>
+      <Box display="flex" justifyContent="center" gap={2} mb={3}>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? 'Updating...' : 'Update'}
+        </Button>
+        <Button
+          variant="outlined"
+          component={Link}
+          to="/profile"
+        >
+          Back
+        </Button>
+      </Box>
+    </Container>
   );
 }
