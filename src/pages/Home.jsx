@@ -16,92 +16,92 @@ import {
   Box,
 } from '@mui/material';
 
+import QuartermasterIcon from '../assets/Quartermaster.png';
+
 export default function Home() {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [recentRecipes, setRecentRecipes] = useState([]);
   const [savedRecipeIds, setSavedRecipeIds] = useState([]);
   const [likedRecipeIds, setLikedRecipeIds] = useState([]);
-  const [userProfile, setUserProfile] = useState(null);
+
 
   const auth = getAuth();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
 
       if (firebaseUser) {
+        // Load profile
+        try {
+          const snapshot = await get(ref(db, `users/${firebaseUser.uid}`));
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            setUserProfile(userData);
+            setSavedRecipeIds(userData.savedRecipes || []);
+            setLikedRecipeIds(userData.likedRecipes || []);
+          }
+        } catch (error) {
+          console.error('Error loading profile data:', error);
+        }
+
         const userRecipesRef = ref(db, `users/${firebaseUser.uid}/recipes`);
-        onValue(userRecipesRef, (snapshot) => {
+        const recipesUnsub = onValue(userRecipesRef, async (snapshot) => {
           const data = snapshot.val();
           if (data) {
             const recipesArray = Object.entries(data).map(([id, recipe]) => ({ id, ...recipe }));
-            (async () => {
-              const likeCountPromises = recipesArray.map(async (recipe) => {
-                const sharedRef = ref(db, `recipes/${recipe.id}/likes`);
-                try {
-                  const likeSnapshot = await get(sharedRef);
-                  console.log(`Fetched likes for ${recipe.id}:`, likeSnapshot.val());
-                  const likes = likeSnapshot.exists() ? likeSnapshot.val() : 0;
-                  return { ...recipe, likes };
-                } catch (error) {
-                  console.error(`Failed to fetch likes for ${recipe.id}:`, error);
-                  return { ...recipe, likes: 0 };
-                }
-              });
 
-              const recipesWithLikes = await Promise.all(likeCountPromises);
-              setRecentRecipes(recipesWithLikes.slice(-3).reverse());
-            })();
+            const likeCountPromises = recipesArray.map(async (recipe) => {
+              const sharedRef = ref(db, `recipes/${recipe.id}/likes`);
+              try {
+                const likeSnapshot = await get(sharedRef);
+                const likes = likeSnapshot.exists() ? likeSnapshot.val() : 0;
+                return { ...recipe, likes };
+              } catch (error) {
+                console.error(`Failed to fetch likes for ${recipe.id}:`, error);
+                return { ...recipe, likes: 0 };
+              }
+            });
+
+            const recipesWithLikes = await Promise.all(likeCountPromises);
+            setRecentRecipes(recipesWithLikes.slice(-3).reverse());
           } else {
             setRecentRecipes([]);
           }
         });
 
-        const userMetaRef = ref(db, `users/${firebaseUser.uid}`);
-        onValue(userMetaRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setSavedRecipeIds(data.savedRecipes || []);
-            setLikedRecipeIds(data.likedRecipes || []);
-          }
-        });
+        return () => recipesUnsub();
+      } else {
+        setUserProfile(null);
+        setSavedRecipeIds([]);
+        setLikedRecipeIds([]);
+        setRecentRecipes([]);
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
-          setUser(firebaseUser);
-          try {
-            const snapshot = await get(ref(db, `users/${firebaseUser.uid}`));
-            if (snapshot.exists()) {
-              setUserProfile(snapshot.val());
-            }
-          } catch (error) {
-            console.error('Error loading profile data:', error);
-          }
-        } else {
-          setUser(null);
-          setUserProfile(null);
-        }
-      });
-  
-      return () => unsubscribe();
-    }, []);
-  
 
   return (
     <Container maxWidth="md" sx={{ mt: 6 }}>
+      <img
+        src={QuartermasterIcon}
+        alt="Quartermaster Icon"
+        style={{
+          width: '200px',
+          height: '200px',
+          marginRight: '8px',
+        }}
+      />
       <Typography variant="h3" gutterBottom>
         Welcome to Quartermaster
       </Typography>
 
       <Typography variant="h6" gutterBottom>
-        {user
-          ? `Hello, ${user.displayName || userProfile?.username}! Here’s a snapshot of your kitchen.`
+        {user && userProfile
+          ? `Hello, ${userProfile.username}! Here’s a snapshot of your kitchen.`
           : 'Manage your ingredients and recipes. Sign in to get started!'}
       </Typography>
 
