@@ -39,6 +39,7 @@ export default function Home() {
                 const sharedRef = ref(db, `sharedRecipes/${recipe.id}/likes`);
                 try {
                   const likeSnapshot = await get(sharedRef);
+                  console.log(`Fetched likes for ${recipe.id}:`, likeSnapshot.val());
                   const likes = likeSnapshot.exists() ? likeSnapshot.val() : 0;
                   return { ...recipe, likes };
                 } catch (error) {
