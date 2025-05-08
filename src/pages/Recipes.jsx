@@ -15,7 +15,6 @@ import {
     CardActions,
     Typography,
     Button,
-    CircularProgress,
     Box,
 } from '@mui/material';
 
@@ -391,8 +390,6 @@ export default function Recipes() {
                         })}
                     </Grid>
                 </Box>
-
-
             )}
             <Grid container justifyContent="center" spacing={2} sx={{ mt: 4 }}>
                 <Grid item>

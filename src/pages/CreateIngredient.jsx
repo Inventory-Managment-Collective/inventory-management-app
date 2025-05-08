@@ -3,6 +3,17 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ref, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  Container,
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Box,
+  Select,
+  InputLabel,
+  FormControl
+} from '@mui/material';
 
 import {
   Container,
@@ -25,11 +36,7 @@ export default function CreateIngredient() {
   const [category, setCategory] = useState('');
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  //State intitialization for all the necessary inputs for a new ingredient aswell as user to hold 
-  //the current user.
-
   const auth = getAuth();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,23 +68,6 @@ export default function CreateIngredient() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user || null);
-    });
-
-    return () => unsubscribe();
-  }, []);
-  //functionality to add the new ingredeint to the users ingredients list once the form is submitted.
-  //checks all the fields are filled in, if so, constructs a new ingredient with the info provided in the form,
-  //converting quantity to a number along the way. it then constructs and stores the path to the users ingredients
-  //and uses this to to generate a new key with pus. set is then called to write the new ingredient data to the path with the newly 
-  //generated key.
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
     });
 
     return () => unsubscribe();
@@ -124,3 +114,4 @@ export default function CreateIngredient() {
     </Container>
   );
 }
+

@@ -14,7 +14,7 @@ import {
   InputLabel,
   FormControl,
   Select,
-  MenuItem
+  MenuItem,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
@@ -23,20 +23,17 @@ export default function CreateRecipe() {
   const [name, setName] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [instructions, setInstructions] = useState(['']);
-  const [description, setDescription] = useState(['']);
+  const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const auth = getAuth();
-  //functions very similarly to createIngredeint but with cloudinary to allow the user to upload a picture
-  //of their recipe from their machine, as opposed to providing the URL
 
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", import.meta.env.VITE_UNSIGNED_UPLOAD_PRESET);
-    formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_NAME);
 
     const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, {
       method: "POST",
@@ -44,13 +41,12 @@ export default function CreateRecipe() {
     });
 
     const data = await res.json();
+    if (!res.ok) {
+      console.error('Cloudinary upload failed:', data);
+      throw new Error(data.error?.message || 'Upload failed');
+    }
     return data.secure_url;
   };
-  //Function to upload an image file to cloudinary. takes in file as a parameter which will be the image selected by
-  //the user. constructs a formData object with the file, the upload preset we denoted and the name of the cloud
-  //to send the image to. Then uses fetch to send a post request to our cloud with the formData object we constructed
-  //res.json() will then read the body of the HTTP response and transltes it to JSON. From this json we then extract and
-  //return the url to the image which can then be used as the 'src' for rendering purposes
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -86,7 +82,6 @@ export default function CreateRecipe() {
         ing.unit.trim() !== ''
     );
 
-
     const validInstructions = instructions.filter(step => step.trim() !== '');
 
     const newRecipe = {
@@ -100,7 +95,7 @@ export default function CreateRecipe() {
         quantity: parseFloat(ing.quantity),
         unit: ing.unit,
       })),
-      source: "user" 
+      source: "user"
     };
 
     try {
@@ -114,12 +109,6 @@ export default function CreateRecipe() {
       toast.error('Failed to create recipe.');
     }
   };
-  //Function which handle submission of the form to create a new recipe. Starts by validating the fact
-  //that the form is filled where necessary. Then it it will then initialise imageUrl as just an empty space 
-  //and, if an image was provided by the user, call uploadImageToCloudinary with the imageFile to upload and 
-  // return the url to the image. the function will then filter the ingredeints to retrieve only the valid ones, ones with a non-empty
-  // string name and unit a valid number for quantity. It will then construct a newRecipe object with valid name, instructions, ingredients and 
-  // the imageUrl derived earlier. This recipe is then saved to firebase via push and set. 
 
   const handleInstructionChange = (index, value) => {
     const newInstructions = [...instructions];
@@ -152,11 +141,31 @@ export default function CreateRecipe() {
           required
         />
 
-      
-        <Button
-          variant="outlined"
-          component="label"
-        >
+        <TextField
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          multiline
+          rows={3}
+          required
+        />
+
+        <FormControl fullWidth required>
+          <InputLabel id="category-label">Category</InputLabel>
+          <Select
+            labelId="category-label"
+            value={category}
+            label="Category"
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <MenuItem value=""><em>Select category</em></MenuItem>
+            <MenuItem value="Baking">Baking</MenuItem>
+            <MenuItem value="Pasta">Pasta</MenuItem>
+            <MenuItem value="Vegetarian">Vegetarian</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button variant="outlined" component="label">
           Upload Image
           <input
           type="file"
@@ -167,6 +176,7 @@ export default function CreateRecipe() {
 
         <Box>
           <Typography variant="h6">Instructions</Typography>
+
           {instructions.map((step, index) => (
             <TextField
               key={index}
@@ -202,13 +212,18 @@ export default function CreateRecipe() {
                 required
                 fullWidth
               />
-              <TextField
-                label="Unit"
-                value={ing.unit}
-                onChange={e => handleIngredientChange(index, 'unit', e.target.value)}
-                required
-                fullWidth
-              />
+              <FormControl fullWidth required>
+                <InputLabel>Unit</InputLabel>
+                <Select
+                  value={ing.unit}
+                  label="Unit"
+                  onChange={e => handleIngredientChange(index, 'unit', e.target.value)}
+                >
+                  <MenuItem value="grams">grams</MenuItem>
+                  <MenuItem value="ml">ml</MenuItem>
+                  <MenuItem value="items">items</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
           ))}
           <Button onClick={addIngredient} startIcon={<AddIcon />} variant="outlined">
