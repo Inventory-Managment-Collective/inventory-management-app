@@ -138,26 +138,28 @@ export default function Ingredients() {
                     <ListItemText
                       primary={`${ingredient.name} — ${ingredient.quantity} ${ingredient.unit}`}
                       secondary={
-                        <Stack direction="row" spacing={1} mt={1}>
-                          {ingredient.unit === 'grams' && (
-                            <>
-                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 100)}>+100g</Button>
-                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 500)}>+500g</Button>
-                            </>
-                          )}
-                          {ingredient.unit === 'ml' && (
-                            <>
-                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</Button>
-                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</Button>
-                            </>
-                          )}
-                          {ingredient.unit === 'items' && (
-                            <>
-                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 1)}>+1</Button>
-                              <Button size="small" onClick={() => handleAddStock(ingredient.id, 6)}>+6</Button>
-                            </>
-                          )}
-                        </Stack>
+                        <Typography component="span" variant="body2" color="text.secondary">
+                          <Stack direction="row" spacing={1} mt={1}>
+                            {ingredient.unit === 'grams' && (
+                              <>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 100)}>+100g</Button>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 500)}>+500g</Button>
+                              </>
+                            )}
+                            {ingredient.unit === 'ml' && (
+                              <>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 100)}>+100ml</Button>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 250)}>+250ml</Button>
+                              </>
+                            )}
+                            {ingredient.unit === 'items' && (
+                              <>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 1)}>+1</Button>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 6)}>+6</Button>
+                              </>
+                            )}
+                          </Stack>
+                        </Typography>
                       }
                     />
                     <ListItemSecondaryAction>

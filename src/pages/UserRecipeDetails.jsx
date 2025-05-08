@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  Box,
+  Container,
+  Typography,
+  Card,
+  CardMedia,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Link,
+  Divider
+} from '@mui/material';
 
 export default function UserRecipeDetails() {
   const { recipeId } = useParams();
@@ -107,56 +120,76 @@ export default function UserRecipeDetails() {
     }
   };
 
-  if (loading) return <p>Loading recipe...</p>;
-  if (!recipe) return <p>Recipe not found.</p>;
+  if (loading) return <Typography variant="body1">Loading recipe...</Typography>;
+  if (!recipe) return <Typography variant="body1">Recipe not found.</Typography>;
 
   return (
-    <div>
-      <h2>{recipe.name}</h2>
-      <img
-        src={recipe.imageUrl}
-        alt={recipe.name}
-        style={{ width: '300px', borderRadius: '8px' }}
-      />
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Card sx={{ p: 2 }}>
+        <Typography variant="h4" gutterBottom>
+          {recipe.name}
+        </Typography>
 
-      <h3>Category</h3>
-      <p>{recipe.category}</p>
+        {recipe.imageUrl && (
+          <CardMedia
+            component="img"
+            height="300"
+            image={recipe.imageUrl}
+            alt={recipe.name}
+            sx={{ borderRadius: 2, objectFit: 'cover', mb: 2 }}
+          />
+        )}
 
-      <h3>Description</h3>
-      <p>{recipe.description}</p>
+        <Typography variant="h6">Category</Typography>
+        <Typography variant="body1" gutterBottom>
+          {recipe.category}
+        </Typography>
 
-      <h3>Ingredients</h3>
-      <ul>
-        {recipe.ingredients?.map((ing, index) => {
-          const stock = ing.name
-            ? ingredientStock[ing.name.toLowerCase()]?.quantity || 0
-            : 0;
-          const sufficient = stock >= ing.quantity;
-          return (
-            <li key={index} style={{ color: sufficient ? 'black' : 'red' }}>
-              {ing.name || 'Unnamed'}: {stock}/{ing.quantity} {ing.unit}{' '}
-              {!sufficient && '(Insufficient)'}
-            </li>
-          );
-        })}
-      </ul>
+        <Typography variant="h6">Description</Typography>
+        <Typography variant="body1" gutterBottom>
+          {recipe.description}
+        </Typography>
 
-      <Link to={`/updateRecipe/${recipeId}`}>Edit Recipe</Link>
-      <br />
-      <Link to={`/userRecipes/${recipeId}/recipeInstrcutions`}>Make dish</Link>
-      <br />
-      <Link to="/userRecipes">Back</Link>
-    </div>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Ingredients
+        </Typography>
+        <List>
+          {recipe.ingredients?.map((ing, index) => {
+            const stock = ing.name
+              ? ingredientStock[ing.name.toLowerCase()]?.quantity || 0
+              : 0;
+            const sufficient = stock >= ing.quantity;
+            return (
+              <ListItem key={index} sx={{ color: sufficient ? 'inherit' : 'error.main' }}>
+                <ListItemText
+                  primary={`${ing.name || 'Unnamed'}: ${stock}/${ing.quantity} ${ing.unit}`}
+                  secondary={!sufficient && 'Insufficient'}
+                />
+              </ListItem>
+            );
+          })}
+        </List>
+
+        <Box sx={{ display: 'flex', gap: 2, mt: 3, flexWrap: 'wrap' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={!canMakeRecipe()}
+            onClick={handleMakeRecipe}
+          >
+            Make Recipe
+          </Button>
+          <Button variant="outlined" component={RouterLink} to={`/updateRecipe/${recipeId}`}>
+            Edit Recipe
+          </Button>
+          <Button variant="outlined" component={RouterLink} to={`/userRecipes/${recipeId}/recipeInstrcutions`}>
+            View Instructions
+          </Button>
+          <Button variant="text" component={RouterLink} to="/userRecipes">
+            Back to Recipes
+          </Button>
+        </Box>
+      </Card>
+    </Container>
   );
 }
-
-
-/*
-<button
-        onClick={handleMakeRecipe}
-        disabled={!canMakeRecipe()}
-        style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}
-      >
-        Make Recipe
-      </button>
-*/

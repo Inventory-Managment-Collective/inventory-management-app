@@ -37,7 +37,6 @@ export default function CreateIngredient() {
       name,
       quantity: parseFloat(quantity),
       unit,
-      category,
     };
 
     try {

@@ -1,29 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  CircularProgress,
+  Link,
+  Paper,
+} from '@mui/material';
 
 export default function UpdateIngredient() {
   const { ingredientId } = useParams();
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
   const [category, setCategory] = useState('');
-  const [user, setUser] = useState(null);
 
   const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
+      setUser(user || null);
     });
 
     return () => unsubscribe();
@@ -56,8 +62,6 @@ export default function UpdateIngredient() {
 
     fetchIngredient();
   }, [user, ingredientId, navigate]);
-  //useEffect which will re run anytime user, ingredientId or navigate. fetches the ingredient we wish to update with get and the path to 
-  //that ingredient. It will then update the state variable with the data we just fetched
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,7 +70,7 @@ export default function UpdateIngredient() {
       name,
       quantity: parseFloat(quantity),
       unit,
-      category
+      category,
     };
 
     try {
@@ -78,48 +82,70 @@ export default function UpdateIngredient() {
       alert('Failed to update ingredient');
     }
   };
-  //functionality which will actually update the ingredient in the databse once the form is
-  //submitted. constructs an updatedData object with the data provided to the form. it will then call
-  //update with the path to the ingredient we are updating and the updatedData object to update the 
-  //ingredient with the content in the form
 
-  if (loading) return <p>Loading ingredient...</p>;
+  if (loading) {
+    return (
+      <Container sx={{ mt: 8, textAlign: 'center' }}>
+        <CircularProgress />
+        <Typography variant="body1" sx={{ mt: 2 }}>Loading ingredient...</Typography>
+      </Container>
+    );
+  }
 
   return (
-    <div>
-      <h2>Update Ingredient</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label><br />
-          <input value={name} onChange={e => setName(e.target.value)} required />
-        </div>
+    <Container maxWidth="sm" sx={{ mt: 6 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>Update Ingredient</Typography>
 
-        <div>
-          <label>Quantity:</label><br />
-          <input
+        <Box component="form" onSubmit={handleSubmit} noValidate autoComplete="off">
+          <TextField
+            label="Name"
+            fullWidth
+            required
+            margin="normal"
+            value={name}
+            onChange={e => setName(e.target.value)}
+          />
+
+          <TextField
+            label="Quantity"
             type="number"
-            step="any"
+            fullWidth
+            required
+            margin="normal"
+            inputProps={{ step: 'any' }}
             value={quantity}
             onChange={e => setQuantity(e.target.value)}
-            required
           />
-        </div>
 
-        <div>
-          <label>Unit:</label><br />
-          <input value={unit} onChange={e => setUnit(e.target.value)} required />
-        </div>
+          <TextField
+            label="Unit"
+            fullWidth
+            required
+            margin="normal"
+            value={unit}
+            onChange={e => setUnit(e.target.value)}
+          />
 
-        <div>
-          <label>Category:</label><br />
-          <input value={category} onChange={e => setCategory(e.target.value)} required />
-        </div>
+          <TextField
+            label="Category"
+            fullWidth
+            required
+            margin="normal"
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+          />
 
-        <br />
-        <button type="submit">Update</button>
-      </form>
-      <br/>
-      <Link to="/ingredients">Back</Link>
-    </div>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="submit" variant="contained" color="primary">
+              Update
+            </Button>
+            <Link component={RouterLink} to="/ingredients" underline="hover">
+              Back
+            </Link>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

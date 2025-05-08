@@ -2,7 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
-import { getAuth, onAuthStateChanged  } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Paper,
+  Divider,
+} from '@mui/material';
 
 export default function UpdateRecipe() {
   const { recipeId } = useParams();
@@ -15,8 +24,8 @@ export default function UpdateRecipe() {
   const [instructions, setInstructions] = useState(['']);
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
 
-    const auth = getAuth();
-  
+  const auth = getAuth();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -103,70 +112,93 @@ export default function UpdateRecipe() {
     }
   };
 
-  if (loading) return <p>Loading recipe...</p>;
+  if (loading) return <Typography>Loading recipe...</Typography>;
 
   return (
-    <div>
-      <h2>Update Recipe</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Recipe Name:</label><br />
-          <input value={name} onChange={e => setName(e.target.value)} required />
-        </div>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Update Recipe
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <Box mb={3}>
+            <TextField
+              fullWidth
+              label="Recipe Name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
+          </Box>
+          <Box mb={3}>
+            <TextField
+              fullWidth
+              label="Image URL"
+              value={imageUrl}
+              onChange={e => setImageUrl(e.target.value)}
+              required
+            />
+          </Box>
 
-        <div>
-          <label>Image URL:</label><br />
-          <input value={imageUrl} onChange={e => setImageUrl(e.target.value)} required />
-        </div>
-
-        <div>
-          <h4>Instructions</h4>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>Instructions</Typography>
           {instructions.map((step, index) => (
-            <div key={index}>
-              <label>Step {index + 1}:</label><br />
-              <input
-                type="text"
+            <Box key={index} mb={2}>
+              <TextField
+                fullWidth
+                label={`Step ${index + 1}`}
                 value={step}
                 onChange={e => handleInstructionChange(index, e.target.value)}
                 required
               />
-            </div>
+            </Box>
           ))}
-          <button type="button" onClick={addInstruction}>+ Add Instruction</button>
-        </div>
+          <Button variant="outlined" onClick={addInstruction} sx={{ mb: 3 }}>
+            + Add Instruction
+          </Button>
 
-        <div>
-          <h4>Ingredients</h4>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>Ingredients</Typography>
           {ingredients.map((ing, index) => (
-            <div key={index}>
-              <input
-                placeholder="Name"
+            <Box key={index} display="flex" gap={2} mb={2}>
+              <TextField
+                label="Name"
                 value={ing.name}
                 onChange={e => handleIngredientChange(index, 'name', e.target.value)}
                 required
+                sx={{ flex: 2 }}
               />
-              <input
+              <TextField
                 type="number"
-                placeholder="Quantity"
+                label="Quantity"
                 value={ing.quantity}
                 onChange={e => handleIngredientChange(index, 'quantity', e.target.value)}
                 required
+                sx={{ flex: 1 }}
               />
-              <input
-                placeholder="Unit"
+              <TextField
+                label="Unit"
                 value={ing.unit}
                 onChange={e => handleIngredientChange(index, 'unit', e.target.value)}
                 required
+                sx={{ flex: 1 }}
               />
-            </div>
+            </Box>
           ))}
-          <button type="button" onClick={addIngredient}>+ Add Ingredient</button>
-        </div>
+          <Button variant="outlined" onClick={addIngredient} sx={{ mb: 3 }}>
+            + Add Ingredient
+          </Button>
 
-        <br />
-        <button type="submit">Update Recipe</button>
-      </form>
-      <Link to={`/userRecipes/${recipeId}`}>Back</Link>
-    </div>
+          <Box mt={4} display="flex" gap={2}>
+            <Button variant="contained" type="submit">
+              Update Recipe
+            </Button>
+            <Button variant="text" component={Link} to={`/userRecipes/${recipeId}`}>
+              Back
+            </Button>
+          </Box>
+        </form>
+      </Paper>
+    </Container>
   );
 }
