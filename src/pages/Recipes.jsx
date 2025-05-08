@@ -26,7 +26,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 //Link for navigation aswell as useNavigate and get Auth and AuthStateChange methods to
 //keep track of the currently logged in user.
 
-
+const categories = ["All", "Baking", "Pasta", "Vegetarian"];
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
@@ -34,6 +34,7 @@ export default function Recipes() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
 
     const navigate = useNavigate();
@@ -218,9 +219,11 @@ export default function Recipes() {
     //If the id matches the liked recipe, we update its likes and likedBy.
 
 
-    const filteredRecipes = recipes.filter(recipe =>
-        recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
-    );
+    const filteredRecipes = recipes.filter(recipe => {
+        const matchesSearch = recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase());
+        const matchesCategory = selectedCategory === "All" || recipe.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
     //functionality to filter the recipe results displayed to the user based on the content of the "Search Recipes"
     //text field. optional chaining operator (? after recipe.name) protects against the possbility of accessing a 
     //recipe without a name
@@ -244,6 +247,19 @@ export default function Recipes() {
                     sx={{ width: '300px' }}
                 />
             </Box>
+
+            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center', gap: 2 }}>
+                                    {categories.map(category => (
+                                        <Button
+                                            key={category}
+                                            variant={selectedCategory === category ? "contained" : "outlined"}
+                                            color="primary"
+                                            onClick={() => setSelectedCategory(category)}
+                                        >
+                                            {category}
+                                        </Button>
+                                    ))}
+                                </Box>
 
             {recipes.length === 0 ? (
                 <Typography variant="body1" align="center">
