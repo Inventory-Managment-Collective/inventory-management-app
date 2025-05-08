@@ -16,6 +16,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import QuartermasterIcon from '../assets/Quartermaster.png';
 
 
 const pages = [
@@ -94,7 +95,15 @@ function ResponsiveAppBar() {
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <AdbIcon sx={{ color: 'white', mr: 1 }} />
+            <img
+              src={QuartermasterIcon}
+              alt="Quartermaster Icon"
+              style={{
+                width: '40px',
+                height: '40px',
+                marginRight: '8px',
+              }}
+            />
             <Typography
               variant="h6"
               noWrap
