@@ -127,15 +127,6 @@ export default function UpdateIngredient() {
             onChange={e => setUnit(e.target.value)}
           />
 
-          <TextField
-            label="Category"
-            fullWidth
-            required
-            margin="normal"
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-          />
-
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
             <Button type="submit" variant="contained" color="primary">
               Update

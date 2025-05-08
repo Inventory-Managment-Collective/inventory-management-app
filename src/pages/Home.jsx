@@ -22,8 +22,6 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [recentRecipes, setRecentRecipes] = useState([]);
-  const [savedRecipeIds, setSavedRecipeIds] = useState([]);
-  const [likedRecipeIds, setLikedRecipeIds] = useState([]);
 
   const auth = getAuth();
 
@@ -32,14 +30,11 @@ export default function Home() {
       setUser(firebaseUser);
 
       if (firebaseUser) {
-        // Load profile
         try {
           const snapshot = await get(ref(db, `users/${firebaseUser.uid}`));
           if (snapshot.exists()) {
             const userData = snapshot.val();
             setUserProfile(userData);
-            setSavedRecipeIds(userData.savedRecipes || []);
-            setLikedRecipeIds(userData.likedRecipes || []);
           }
         } catch (error) {
           console.error('Error loading profile data:', error);
@@ -64,7 +59,7 @@ export default function Home() {
             });
 
             const recipesWithLikes = await Promise.all(likeCountPromises);
-            setRecentRecipes(recipesWithLikes.slice(-3).reverse());
+            setRecentRecipes(recipesWithLikes.slice(-4).reverse());
           } else {
             setRecentRecipes([]);
           }
@@ -104,7 +99,7 @@ export default function Home() {
           : 'Manage your ingredients and recipes. Sign in to get started!'}
       </Typography>
 
-      <Box sx={{ my: 4 }}>
+      <Box sx={{ my: 4, display:'flex', justifyContent:'center',}}>
         <Grid container spacing={2}>
           <Grid item>
             <Button variant="contained" component={Link} to="/recipes">
@@ -142,9 +137,6 @@ export default function Home() {
           {recentRecipes.length > 0 ? (
             <Grid container spacing={2}>
               {recentRecipes.map((recipe) => {
-                const alreadySaved = savedRecipeIds.includes(recipe.id);
-                const alreadyLiked = likedRecipeIds.includes(recipe.id);
-
                 return (
                   <Grid
                     item
