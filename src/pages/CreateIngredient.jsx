@@ -15,25 +15,12 @@ import {
   FormControl
 } from '@mui/material';
 
-import {
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
-} from '@mui/material';
-
 import { toast } from 'react-toastify';
 
 export default function CreateIngredient() {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
-  const [category, setCategory] = useState('');
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const auth = getAuth();
