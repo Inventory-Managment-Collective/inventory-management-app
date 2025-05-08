@@ -20,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 //and the user can delete a recipe or view recipe if they choose so.
 
 const categories = ["All", "Baking", "Pasta", "Vegetarian"];
+import { toast } from 'react-toastify';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -97,9 +98,10 @@ export default function UserRecipes() {
         try {
             await remove(ref(db, `users/${user.uid}/recipes/${id}`));
             setRecipes(prev => prev.filter(recipe => recipe.id !== id));
+            toast.success("Recipe deleted successfully!")
         } catch (error) {
             console.error('Error deleting recipe:', error);
-            alert('Failed to delete recipe.');
+            toast.error('Failed to delete recipe.');
         }
     };
     //fucntionality so that the user can delete a recipe from their list, functions the same as delete in ingredeints 
@@ -111,14 +113,14 @@ export default function UserRecipes() {
             const userRecipeSnap = await get(userRecipeRef);
 
             if (!userRecipeSnap.exists()) {
-                alert('Recipe not found.');
+                toast.error('Recipe not found.');
                 return;
             }
 
             const recipeData = userRecipeSnap.val();
 
             if (recipeData.source === "global") {
-                alert("You cannot share or unshare a recipe you didn't create.");
+                toast.error("You cannot share or unshare a recipe you didn't create.");
                 return;
             }
 
@@ -128,16 +130,16 @@ export default function UserRecipes() {
             if (isShared) {
                 await remove(globalRecipeRef);
                 setSharedRecipes(prev => prev.filter(id => id !== recipeId));
-                alert('Recipe unshared successfully!');
+                toast.success('Recipe unshared successfully!');
             } else {
                 await set(globalRecipeRef, recipeData);
                 setSharedRecipes(prev => [...prev, recipeId]);
-                alert('Recipe shared successfully!');
+                toast.success('Recipe shared successfully!');
             }
 
         } catch (error) {
             console.error('Error sharing/unsharing recipe:', error);
-            alert('Failed to share/unshare recipe.');
+            toast.error('Failed to share/unshare recipe.');
         }
     };
 

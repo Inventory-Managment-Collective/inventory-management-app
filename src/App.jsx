@@ -21,6 +21,8 @@ import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import BottomNav from './components/BottomNav';
 import RecipeInstructionDetails from './pages/RecipeInstructionsDetails';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import './App.css'
 
@@ -61,6 +63,8 @@ function App() {
       <CssBaseline />
 
       <Navbar />
+
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
       <Routes>
     

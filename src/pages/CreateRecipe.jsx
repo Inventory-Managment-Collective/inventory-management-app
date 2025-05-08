@@ -17,6 +17,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { toast } from 'react-toastify';
 
 export default function CreateRecipe() {
   const [name, setName] = useState('');
@@ -63,7 +64,7 @@ export default function CreateRecipe() {
     e.preventDefault();
 
     if (!name || instructions.length === 0 || ingredients.length === 0) {
-      alert('Please fill in all fields.');
+      toast.error('Please fill in all fields.');
       return;
     }
 
@@ -101,11 +102,11 @@ export default function CreateRecipe() {
       const recipesRef = ref(db, `users/${user.uid}/recipes`);
       const newRef = push(recipesRef);
       await set(newRef, newRecipe);
-      alert('Recipe created!');
+      toast.success('Recipe created!');
       navigate('/userRecipes');
     } catch (error) {
       console.error('Error creating recipe:', error);
-      alert('Failed to create recipe.');
+      toast.error('Failed to create recipe.');
     }
   };
 
@@ -167,11 +168,10 @@ export default function CreateRecipe() {
         <Button variant="outlined" component="label">
           Upload Image
           <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={(e) => setImageFile(e.target.files[0])}
-          />
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files[0])}
+        />
         </Button>
 
         <Box>
