@@ -70,32 +70,6 @@ export default function CreateIngredient() {
   }, []);
 
   return (
-    <div>
-      <h2>Add New Ingredient</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label><br />
-          <input value={name} onChange={e => setName(e.target.value)} required />
-        </div>
-        <div>
-          <label>Quantity:</label><br />
-          <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} required />
-        </div>
-        <div>
-          <label>Unit:</label><br />
-          <select value={unit} onChange={(e) => setUnit(e.target.value)} required>
-            <option value="">Select unit</option>
-            <option value="grams">grams</option>
-            <option value="ml">ml</option>
-            <option value="items">items</option>
-          </select>
-        </div>
-        <br />
-        <button type="submit">Add Ingredient</button>
-      </form>
-      <br />
-      <Link to="/ingredients">Back</Link>
-    </div>
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom align="center">
         Add New Ingredient
