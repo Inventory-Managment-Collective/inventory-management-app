@@ -155,14 +155,13 @@ export default function Ingredients() {
                             {ingredient.unit === 'items' && (
                               <>
                                 <Button size="small" onClick={() => handleAddStock(ingredient.id, 1)}>+1</Button>
-                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 6)}>+6</Button>
+                                <Button size="small" onClick={() => handleAddStock(ingredient.id, 5)}>+5</Button>
                               </>
                             )}
                           </Stack>
                         </Typography>
                       }
                     />
-                    <ListItemSecondaryAction>
                       <IconButton
                         component={Link}
                         to={`/updateIngredient/${ingredient.id}`}
@@ -178,7 +177,6 @@ export default function Ingredients() {
                       >
                         <DeleteIcon />
                       </IconButton>
-                    </ListItemSecondaryAction>
                   </ListItem>
                 ))}
             </List>
