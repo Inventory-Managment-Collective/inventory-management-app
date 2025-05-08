@@ -19,6 +19,8 @@ export default function EditProfile() {
   const [user, setUser] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [currentPicture, setCurrentPicture] = useState('');
+  const [username, setUsername] = useState('');
+  const [about, setAbout] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -33,6 +35,8 @@ export default function EditProfile() {
           if (snapshot.exists()) {
             const profileData = snapshot.val();
             setCurrentPicture(profileData.profilePicture || '');
+            setUsername(profileData.username || '');
+            setAbout(profileData.about || '');
           }
         } catch (error) {
           console.error('Error loading profile data:', error);
@@ -49,13 +53,23 @@ export default function EditProfile() {
     formData.append("upload_preset", import.meta.env.VITE_UNSIGNED_UPLOAD_PRESET);
     formData.append("cloud_name", import.meta.env.VITE_CLOUDINARY_NAME);
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`, {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-    const data = await res.json();
-    return data.secure_url;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error.message);
+      return data.secure_url;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      toast(<QuarterMasterToast message="Image upload failed." />);
+      return '';
+    }
   };
 
   const handleSubmit = async () => {
@@ -69,13 +83,19 @@ export default function EditProfile() {
         imageUrl = await uploadImageToCloudinary(imageFile);
       }
 
-      await update(ref(db, `users/${user.uid}`), {
+      const updatedData = {
         profilePicture: imageUrl,
-      });
-      toast(<QuarterMasterToast message='Profile picture updated'/>)
+        username: username.trim(),
+        about: about.trim(),
+      };
+
+      await update(ref(db, `users/${user.uid}`), updatedData);
+
+      toast(<QuarterMasterToast message="Profile updated successfully!" />);
       navigate('/profile');
     } catch (err) {
-      toast(<QuarterMasterToast message='Failed to update profile picture: '/>)
+      console.error('Error updating profile:', err);
+      toast(<QuarterMasterToast message="Failed to update profile." />);
     } finally {
       setLoading(false);
     }
@@ -84,7 +104,7 @@ export default function EditProfile() {
   return (
     <Container sx={{ mt: 5 }}>
       <Typography variant="h4" gutterBottom>
-        Edit Profile Picture
+        Edit Profile
       </Typography>
 
       <Box display="flex" justifyContent="center" mb={3}>
@@ -101,14 +121,51 @@ export default function EditProfile() {
 
       <Box mb={3}>
         <Typography variant="body1" sx={{ mb: 1 }}>
-          Upload a new profile picture:
+          Update Username:
         </Typography>
         <TextField
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile(e.target.files[0])}
           fullWidth
+          label="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
+      </Box>
+
+      <Box mb={3}>
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          Update About:
+        </Typography>
+        <TextField
+          fullWidth
+          label="About"
+          value={about}
+          multiline
+          rows={3}
+          onChange={(e) => setAbout(e.target.value)}
+        />
+      </Box>
+
+      <Box mb={3}>
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          Upload a new profile picture:
+        </Typography>
+        <Button variant="outlined" component="label">
+          Choose File
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(e) => setImageFile(e.target.files[0])}
+          />
+        </Button>
+      </Box>
+
+      <Box mb={3}>
+        {imageFile && (
+          <Typography variant="body2">
+            Selected file: {imageFile.name}
+          </Typography>
+        )}
       </Box>
 
       <Box display="flex" justifyContent="center" gap={2} mb={3}>
@@ -117,7 +174,7 @@ export default function EditProfile() {
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? 'Updating...' : 'Update'}
+          {loading ? 'Updating...' : 'Update Profile'}
         </Button>
         <Button
           variant="outlined"

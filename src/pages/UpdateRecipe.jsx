@@ -20,9 +20,9 @@ export default function UpdateRecipe() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [instructions, setInstructions] = useState(['']);
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
@@ -31,11 +31,7 @@ export default function UpdateRecipe() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
+      setUser(user);
     });
 
     return () => unsubscribe();
@@ -54,12 +50,12 @@ export default function UpdateRecipe() {
           setInstructions(data.instructions || ['']);
           setIngredients(data.ingredients || [{ name: '', quantity: '', unit: '' }]);
         } else {
-          toast(<QuarterMasterToast message='Recipe not found.'/>)
+          toast(<QuarterMasterToast message='Recipe not found.' />);
           navigate('/userRecipes');
         }
       } catch (error) {
         console.error('Error fetching recipe:', error);
-        toast(<QuarterMasterToast message='Failed to load recipe.'/>)
+        toast(<QuarterMasterToast message='Failed to load recipe.' />);
         navigate(`/userRecipes/${recipeId}`);
       } finally {
         setLoading(false);
@@ -67,7 +63,32 @@ export default function UpdateRecipe() {
     };
 
     fetchRecipe();
-  }, [recipeId, navigate, user]);
+  }, [recipeId, user, navigate]);
+
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', import.meta.env.VITE_UNSIGNED_UPLOAD_PRESET);
+    formData.append('cloud_name', import.meta.env.VITE_CLOUDINARY_NAME);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error.message);
+      return data.secure_url;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      toast(<QuarterMasterToast message="Image upload failed." />);
+      return '';
+    }
+  };
 
   const handleInstructionChange = (index, value) => {
     const updated = [...instructions];
@@ -92,13 +113,19 @@ export default function UpdateRecipe() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let finalImageUrl = imageUrl;
+
+    if (imageFile) {
+      finalImageUrl = await uploadImageToCloudinary(imageFile);
+    }
+
     const updatedRecipe = {
       name,
-      imageUrl,
-      instructions: instructions.filter(step => step.trim() !== ''),
+      imageUrl: finalImageUrl,
+      instructions: instructions.filter((step) => step.trim() !== ''),
       ingredients: ingredients
-        .filter(ing => ing.name && ing.quantity && ing.unit)
-        .map(ing => ({
+        .filter((ing) => ing.name && ing.quantity && ing.unit)
+        .map((ing) => ({
           name: ing.name,
           quantity: parseFloat(ing.quantity),
           unit: ing.unit,
@@ -107,11 +134,11 @@ export default function UpdateRecipe() {
 
     try {
       await update(ref(db, `users/${user.uid}/recipes/${recipeId}`), updatedRecipe);
-      toast(<QuarterMasterToast message={`${updatedRecipe.name} updated!`}/>)
+      toast(<QuarterMasterToast message={`${updatedRecipe.name} updated!`} />);
       navigate(`/userRecipes/${recipeId}`);
     } catch (error) {
       console.error('Error updating recipe:', error);
-      toast(<QuarterMasterToast message='Failed to update recipe.'/>)
+      toast(<QuarterMasterToast message="Failed to update recipe." />);
     }
   };
 
@@ -129,29 +156,38 @@ export default function UpdateRecipe() {
               fullWidth
               label="Recipe Name"
               value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-          </Box>
-          <Box mb={3}>
-            <TextField
-              fullWidth
-              label="Image URL"
-              value={imageUrl}
-              onChange={e => setImageUrl(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </Box>
 
+          <Box mb={3}>
+            <Button variant="outlined" component="label">
+              Upload Image
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => setImageFile(e.target.files[0])}
+              />
+            </Button>
+          </Box>
+
+          <Box mb={3}>
+            <img src={imageUrl} alt="Current Recipe" width="100%" style={{ maxHeight: '200px' }} />
+          </Box>
+
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" gutterBottom>Instructions</Typography>
+          <Typography variant="h6" gutterBottom>
+            Instructions
+          </Typography>
           {instructions.map((step, index) => (
             <Box key={index} mb={2}>
               <TextField
                 fullWidth
                 label={`Step ${index + 1}`}
                 value={step}
-                onChange={e => handleInstructionChange(index, e.target.value)}
+                onChange={(e) => handleInstructionChange(index, e.target.value)}
                 required
               />
             </Box>
@@ -161,13 +197,15 @@ export default function UpdateRecipe() {
           </Button>
 
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" gutterBottom>Ingredients</Typography>
+          <Typography variant="h6" gutterBottom>
+            Ingredients
+          </Typography>
           {ingredients.map((ing, index) => (
             <Box key={index} display="flex" gap={2} mb={2}>
               <TextField
                 label="Name"
                 value={ing.name}
-                onChange={e => handleIngredientChange(index, 'name', e.target.value)}
+                onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
                 required
                 sx={{ flex: 2 }}
               />
@@ -175,14 +213,14 @@ export default function UpdateRecipe() {
                 type="number"
                 label="Quantity"
                 value={ing.quantity}
-                onChange={e => handleIngredientChange(index, 'quantity', e.target.value)}
+                onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
                 required
                 sx={{ flex: 1 }}
               />
               <TextField
                 label="Unit"
                 value={ing.unit}
-                onChange={e => handleIngredientChange(index, 'unit', e.target.value)}
+                onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
                 required
                 sx={{ flex: 1 }}
               />
