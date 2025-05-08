@@ -3,7 +3,7 @@ import { ref, get, remove, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-
+import { toast } from 'react-toastify';
 
 import {
     Container,
@@ -110,7 +110,7 @@ export default function Recipes() {
 
     const handleSave = async (recipeId) => {
         if (!user) {
-            alert('You must be logged in to save a recipe.');
+            toast.error('You must be logged in to save a recipe.');
             return;
         }
 
@@ -131,11 +131,13 @@ export default function Recipes() {
                 // Remove the recipe
                 await remove(ref(db, `users/${user.uid}/recipes/${savedRecipeKey}`));
                 setUserRecipes(prev => prev.filter(id => id !== recipeId));
+                toast.success("Un-saved recipe")
             } else {
                 // Save the recipe
                 const recipeSnap = await get(ref(db, `recipes/${recipeId}`));
+                toast.success("Saved recipe")
                 if (!recipeSnap.exists()) {
-                    alert('Recipe not found.');
+                    toast.error('Recipe not found.');
                     return;
                 }
 
@@ -143,7 +145,6 @@ export default function Recipes() {
 
                 const newRef = ref(db, `users/${user.uid}/recipes/${recipeId}`);
                 await set(newRef, { ...recipeData, id: recipeId, source: "global" });
-
 
                 setUserRecipes(prev => [...prev, recipeId]);
             }
@@ -163,7 +164,7 @@ export default function Recipes() {
 
     const handleLike = async (recipeId) => {
         if (!user) {
-            alert('You must be logged in to like a recipe.');
+            toast.error('You must be logged in to like a recipe.');
             return;
         }
 
@@ -172,7 +173,7 @@ export default function Recipes() {
             const snapshot = await get(recipeRef);
 
             if (!snapshot.exists()) {
-                alert('Recipe not found.');
+                toast.error('Recipe not found.');
                 return;
             }
 
@@ -207,7 +208,7 @@ export default function Recipes() {
 
         } catch (error) {
             console.error('Error toggling like:', error);
-            alert('Failed to update like status.');
+            toast.error('Failed to update like status.');
         }
     };
 

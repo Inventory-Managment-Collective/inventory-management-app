@@ -37,7 +37,7 @@ export default function Profile() {
     <>
       {user && userProfile ? (
         <div>
-          <p>{user.email}</p>
+          <h2>Hello {userProfile.username}</h2>
           {userProfile.profilePicture ? (
             <img
               src={userProfile.profilePicture}
@@ -47,6 +47,10 @@ export default function Profile() {
           ) : (
             <p>No profile picture uploaded.</p>
           )}
+          <h3>About:</h3>
+          <p>{userProfile.about}</p>
+          <h3>Email:</h3>
+          <p>{user.email}</p>
           <br/>
           <Link component={RouterLink} to="/editProfile">
             Edit Profile

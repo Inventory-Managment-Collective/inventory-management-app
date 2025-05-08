@@ -19,6 +19,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import { toast } from 'react-toastify';
 
 export default function Ingredients() {
   const [ingredients, setIngredients] = useState([]);
@@ -66,9 +67,10 @@ export default function Ingredients() {
     try {
       await remove(ref(db, `users/${user.uid}/ingredients/${id}`));
       setIngredients((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Deleted Ingredient")
     } catch (error) {
       console.error('Error deleting ingredient:', error);
-      alert('Failed to delete ingredient.');
+      toast.error('Failed to delete ingredient.');
     }
   };
 
@@ -85,10 +87,11 @@ export default function Ingredients() {
         setIngredients((prev) =>
           prev.map((item) => (item.id === id ? { ...item, quantity: updatedQuantity } : item))
         );
+        toast.success(`added ${amountToAdd} ${current.name}`);
       }
     } catch (error) {
       console.error('Error updating stock:', error);
-      alert('Failed to update quantity.');
+      toast.error('Failed to update quantity.');
     }
   };
 

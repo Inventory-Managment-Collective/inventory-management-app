@@ -15,11 +15,12 @@ import {
   FormControl
 } from '@mui/material';
 
+import { toast } from 'react-toastify';
+
 export default function CreateIngredient() {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
-  const [category, setCategory] = useState('');
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const auth = getAuth();
@@ -27,8 +28,8 @@ export default function CreateIngredient() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !quantity || !unit || !category) {
-      alert('Please fill in all fields.');
+    if (!name || !quantity || !unit) {
+      toast.error('Please fill in all fields.');
       return;
     }
 
@@ -43,11 +44,11 @@ export default function CreateIngredient() {
       const userIngredientsRef = ref(db, `users/${user.uid}/ingredients`);
       const newRef = push(userIngredientsRef);
       await set(newRef, newIngredient);
-      alert('Ingredient added!');
+      toast.success('Ingredient added!');
       navigate('/ingredients');
     } catch (error) {
       console.error('Error adding ingredient:', error);
-      alert('Failed to add ingredient.');
+      toast.error('Failed to add ingredient.');
     }
   };
 

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { toast } from 'react-toastify';
 
 export default function RecipeInstructionDetails() {
     const { recipeId } = useParams();
@@ -29,7 +30,7 @@ export default function RecipeInstructionDetails() {
             try {
                 const recipeSnap = await get(ref(db, `users/${user.uid}/recipes/${recipeId}`));
                 if (!recipeSnap.exists()) {
-                    alert('Recipe not found.');
+                    toast.error('Recipe not found.');
                     return;
                 }
 
@@ -79,16 +80,16 @@ export default function RecipeInstructionDetails() {
                 const stockEntry = ingredientStock[key];
 
                 if (!stockEntry || stockEntry.quantity < ing.quantity) {
-                    alert(`Not enough ${ing.name} in stock.`);
+                    toast.error(`Not enough ${ing.name} in stock.`);
                     return;
                 }
-
+                toast.success(`${ing.quantity} ${ing.name} removed`)
                 const newQty = stockEntry.quantity - ing.quantity;
                 updates[`users/${user.uid}/ingredients/${stockEntry.id}/quantity`] = newQty;
             }
 
             await update(ref(db), updates);
-            alert('Recipe made! Inventory updated.');
+            toast.success('Recipe made! Inventory updated.');
 
             const updatedSnap = await get(ref(db, `users/${user.uid}/ingredients`));
             if (updatedSnap.exists()) {
