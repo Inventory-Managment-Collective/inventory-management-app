@@ -8,13 +8,15 @@ export default function CreateRecipe() {
   const [name, setName] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [instructions, setInstructions] = useState(['']);
+  const [description, setDescription] = useState(['']);
+  const [category, setCategory] = useState('');
   const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '' }]);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   const auth = getAuth();
   //functions very similarly to createIngredeint but with cloudinary to allow the user to upload a picture
-  //of their recipe from their machine, as opposed
+  //of their recipe from their machine, as opposed to providing the URL
 
   const uploadImageToCloudinary = async (file) => {
     const formData = new FormData();
@@ -77,12 +79,14 @@ export default function CreateRecipe() {
       name,
       imageUrl,
       instructions: validInstructions,
+      description,
+      category,
       ingredients: validIngredients.map(ing => ({
         name: ing.name,
         quantity: parseFloat(ing.quantity),
         unit: ing.unit,
       })),
-      source: "user"  // Adding the source flag
+      source: "user" 
     };
 
     try {
@@ -139,6 +143,21 @@ export default function CreateRecipe() {
           onChange={(e) => setImageFile(e.target.files[0])}
         />
         </div>
+
+        <div>
+          <label>Description:</label><br />
+          <input value={description} onChange={e => setDescription(e.target.value)} required />
+        </div>
+
+        <div>
+        <label>Category:</label><br />
+          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+            <option value="">Select category</option>
+            <option value="Baking">Baking</option>
+            <option value="Pasta">Pasta</option>
+            <option value="Vegetarian">Vegetarian</option>
+          </select>
+          </div>
 
         <div>
           <h4>Instructions</h4>

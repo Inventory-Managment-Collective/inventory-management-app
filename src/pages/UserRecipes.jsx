@@ -19,6 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 //This functions very similarly to Recipes except no like button, save is replaced with share
 //and the user can delete a recipe or view recipe if they choose so.
 
+const categories = ["All", "Baking", "Pasta", "Vegetarian"];
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -26,6 +27,7 @@ export default function UserRecipes() {
     const [user, setUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sharedRecipes, setSharedRecipes] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
     const auth = getAuth();
 
@@ -143,9 +145,12 @@ export default function UserRecipes() {
     //functionality for the user to share a recipe. functions very similarly to handleSave but the paths for get and 
     //push are swapped around.
 
-    const filteredRecipes = recipes.filter(recipe =>
-        recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
-    );
+    const filteredRecipes = recipes.filter(recipe => {
+        const matchesSearch = recipe.name?.toLowerCase().startsWith(searchTerm.toLowerCase());
+        const matchesCategory = selectedCategory === "All" || recipe.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
+    
 
     if (loading) return <Typography variant="h6" align="center">Loading recipes...</Typography>;
 
@@ -166,6 +171,19 @@ export default function UserRecipes() {
                             sx={{ width: '100%', maxWidth: 400 }}
                         />
                     </Box>
+                    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center', gap: 2 }}>
+                        {categories.map(category => (
+                            <Button
+                                key={category}
+                                variant={selectedCategory === category ? "contained" : "outlined"}
+                                color="primary"
+                                onClick={() => setSelectedCategory(category)}
+                            >
+                                {category}
+                            </Button>
+                        ))}
+                    </Box>
+
 
                     <Box sx={{ mb: 3, textAlign: 'center' }}>
                         <Button
@@ -209,6 +227,7 @@ export default function UserRecipes() {
                                                 width: '100%',
                                             }}
                                         />
+
                                         <Box sx={{ p: 2 }}>
                                             <Typography variant="h6" gutterBottom>{recipe.name}</Typography>
                                             <Typography variant="body2" gutterBottom>
@@ -267,11 +286,11 @@ export default function UserRecipes() {
                                                         }}
                                                     >
                                                         <IosShareIcon sx={{ fontSize: 18, mr: { xs: 0, sm: 1 }, transform: 'translateY(-1px)' }} />
-                                                    {sharedRecipes.includes(recipe.id) ? (
-                                                        <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Unshare</Box>
-                                                    ) : (
-                                                        <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Share</Box>
-                                                    )}
+                                                        {sharedRecipes.includes(recipe.id) ? (
+                                                            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Unshare</Box>
+                                                        ) : (
+                                                            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Share</Box>
+                                                        )}
                                                     </Button>
                                                 )}
 

@@ -119,12 +119,11 @@ export default function UserRecipeDetails() {
         style={{ width: '300px', borderRadius: '8px' }}
       />
 
-      <h3>Instructions</h3>
-      <ol>
-        {recipe.instructions?.map((step, index) => (
-          <li key={index}>{step}</li>
-        ))}
-      </ol>
+      <h3>Category</h3>
+      <p>{recipe.category}</p>
+
+      <h3>Description</h3>
+      <p>{recipe.description}</p>
 
       <h3>Ingredients</h3>
       <ul>

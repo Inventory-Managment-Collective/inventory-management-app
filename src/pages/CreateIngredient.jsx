@@ -82,10 +82,6 @@ export default function CreateIngredient() {
             <option value="items">items</option>
           </select>
         </div>
-        <div>
-          <label>Category:</label><br />
-          <input value={category} onChange={e => setCategory(e.target.value)} required />
-        </div>
         <br />
         <button type="submit">Add Ingredient</button>
       </form>
