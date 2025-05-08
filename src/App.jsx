@@ -21,8 +21,9 @@ import Profile from './pages/Profile';
 import EditProfile from './pages/EditProfile';
 import BottomNav from './components/BottomNav';
 import RecipeInstructionDetails from './pages/RecipeInstructionsDetails';
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import QuarterMasterToast from './components/QuarterMasterToast';
 
 import './App.css'
 
@@ -64,7 +65,19 @@ function App() {
 
       <Navbar />
 
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
+
+      <ToastContainer 
+        position="bottom-right" 
+        autoClose={3000} 
+        hideProgressBar
+        closeOnClick 
+        pauseOnHover 
+        draggable 
+        pauseOnFocusLoss 
+        toastClassName="custom-toast-container"
+        bodyClassName="custom-toast-body"
+       />
 
       <Routes>
     

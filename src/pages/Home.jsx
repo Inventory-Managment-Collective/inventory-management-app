@@ -21,6 +21,7 @@ export default function Home() {
   const [recentRecipes, setRecentRecipes] = useState([]);
   const [savedRecipeIds, setSavedRecipeIds] = useState([]);
   const [likedRecipeIds, setLikedRecipeIds] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
 
   const auth = getAuth();
 
@@ -70,6 +71,28 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          try {
+            const snapshot = await get(ref(db, `users/${firebaseUser.uid}`));
+            if (snapshot.exists()) {
+              setUserProfile(snapshot.val());
+            }
+          } catch (error) {
+            console.error('Error loading profile data:', error);
+          }
+        } else {
+          setUser(null);
+          setUserProfile(null);
+        }
+      });
+  
+      return () => unsubscribe();
+    }, []);
+  
+
   return (
     <Container maxWidth="md" sx={{ mt: 6 }}>
       <Typography variant="h3" gutterBottom>
@@ -78,7 +101,7 @@ export default function Home() {
 
       <Typography variant="h6" gutterBottom>
         {user
-          ? `Hello, ${user.displayName || user.email}! Here’s a snapshot of your kitchen.`
+          ? `Hello, ${user.displayName || userProfile?.username}! Here’s a snapshot of your kitchen.`
           : 'Manage your ingredients and recipes. Sign in to get started!'}
       </Typography>
 
