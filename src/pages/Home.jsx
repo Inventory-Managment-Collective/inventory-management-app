@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Link } from 'react-router-dom';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, get } from 'firebase/database';
 import { db } from '../firebase';
 
 import {
@@ -29,15 +29,28 @@ export default function Home() {
       setUser(firebaseUser);
 
       if (firebaseUser) {
-        const allRecipesRef = ref(db, 'sharedRecipes');
-        onValue(allRecipesRef, (snapshot) => {
+        const userRecipesRef = ref(db, `users/${firebaseUser.uid}/recipes`);
+        onValue(userRecipesRef, (snapshot) => {
           const data = snapshot.val();
           if (data) {
             const recipesArray = Object.entries(data).map(([id, recipe]) => ({ id, ...recipe }));
 
-            const sorted = recipesArray.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            const userRecipes = sorted.filter(r => r.authorId === firebaseUser.uid); 
-            setRecentRecipes(userRecipes.slice(0, 3));
+            (async () => {
+              const likeCountPromises = recipesArray.map(async (recipe) => {
+                const sharedRef = ref(db, `sharedRecipes/${recipe.id}/likes`);
+                try {
+                  const likeSnapshot = await get(sharedRef);
+                  const likes = likeSnapshot.exists() ? likeSnapshot.val() : 0;
+                  return { ...recipe, likes };
+                } catch (error) {
+                  console.error(`Failed to fetch likes for ${recipe.id}:`, error);
+                  return { ...recipe, likes: 0 };
+                }
+              });
+
+              const recipesWithLikes = await Promise.all(likeCountPromises);
+              setRecentRecipes(recipesWithLikes.slice(-3).reverse());
+            })();
           } else {
             setRecentRecipes([]);
           }
@@ -56,14 +69,6 @@ export default function Home() {
 
     return () => unsubscribe();
   }, []);
-
-  const handleSave = (id) => {
-    // Add your save logic here
-  };
-
-  const handleLike = (id) => {
-    // Add your like logic here
-  };
 
   return (
     <Container maxWidth="md" sx={{ mt: 6 }}>

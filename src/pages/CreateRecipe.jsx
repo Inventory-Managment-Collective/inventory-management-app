@@ -170,6 +170,7 @@ export default function CreateRecipe() {
           <input
           type="file"
           accept="image/*"
+          hidden
           onChange={(e) => setImageFile(e.target.files[0])}
         />
         </Button>
