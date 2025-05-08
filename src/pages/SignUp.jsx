@@ -11,10 +11,13 @@ import {
   Paper,
   Link as MuiLink,
 } from '@mui/material';
+import { toast } from 'react-toastify';
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [about, setAbout] = useState("");
   const [imageFile, setImageFile] = useState(null);
 
   const navigate = useNavigate();
@@ -35,7 +38,7 @@ export default function SignUp() {
   };
 
   const handleSignup = async () => {
-    if (!email || !password) return alert("Please enter both email and password");
+    if (!email || !password || !username) return toast.error("Please enter both email and password");
 
     try {
       let imageUrl = '';
@@ -50,15 +53,17 @@ export default function SignUp() {
       const userRef = ref(db, `users/${uid}`);
       await set(userRef, {
         email: email,
+        username: username,
         profilePicture: imageUrl,
+        about: about,
         ingredients: {},
         recipes: {}
       });
 
-      alert("Account created!");
+      toast.success("Account created!");
       navigate("/");
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -76,6 +81,14 @@ export default function SignUp() {
         </Typography>
 
         <Box component="form" noValidate>
+        <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
           <TextField
             label="Email"
             variant="outlined"
@@ -92,6 +105,14 @@ export default function SignUp() {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+          <TextField
+            label="About"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={about}
+            onChange={(e) => setAbout(e.target.value)}
           />
           <Box mt={2}>
             <Typography variant="body2" gutterBottom>

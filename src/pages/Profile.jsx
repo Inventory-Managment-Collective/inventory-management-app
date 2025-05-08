@@ -37,6 +37,7 @@ export default function Profile() {
     <>
       {user && userProfile ? (
         <div>
+          <p>{user.username}</p>
           <p>{user.email}</p>
           {userProfile.profilePicture ? (
             <img

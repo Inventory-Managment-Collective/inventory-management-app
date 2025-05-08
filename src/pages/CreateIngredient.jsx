@@ -4,6 +4,20 @@ import { ref, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@mui/material';
+
+import { toast } from 'react-toastify';
+
 export default function CreateIngredient() {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -20,8 +34,8 @@ export default function CreateIngredient() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !quantity || !unit || !category) {
-      alert('Please fill in all fields.');
+    if (!name || !quantity || !unit) {
+      toast.error('Please fill in all fields.');
       return;
     }
 
@@ -36,11 +50,11 @@ export default function CreateIngredient() {
       const userIngredientsRef = ref(db, `users/${user.uid}/ingredients`);
       const newRef = push(userIngredientsRef);
       await set(newRef, newIngredient);
-      alert('Ingredient added!');
+      toast.success('Ingredient added!');
       navigate('/ingredients');
     } catch (error) {
       console.error('Error adding ingredient:', error);
-      alert('Failed to add ingredient.');
+      toast.error('Failed to add ingredient.');
     }
   };
 

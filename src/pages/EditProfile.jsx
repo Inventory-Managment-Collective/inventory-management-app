@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { toast } from 'react-toastify';
 
 export default function EditProfile() {
   const [user, setUser] = useState(null);
@@ -60,10 +61,10 @@ export default function EditProfile() {
         profilePicture: imageUrl,
       });
 
-      alert("Profile picture updated!");
+      toast.success("Profile picture updated!");
       navigate('/profile');
     } catch (err) {
-      alert('Failed to update profile picture: ' + err.message);
+      toast.error('Failed to update profile picture: ' + err.message);
     }
   };
 
