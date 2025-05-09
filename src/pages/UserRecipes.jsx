@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const categories = ["All", "Baking", "Pasta", "Vegetarian"];
 import { toast } from 'react-toastify';
+import QuarterMasterToast from '../components/QuarterMasterToast';
 
 export default function UserRecipes() {
     const [recipes, setRecipes] = useState([]);
@@ -99,10 +100,10 @@ export default function UserRecipes() {
             try {
                 await remove(ref(db, `users/${user.uid}/recipes/${id}`));
                 setRecipes(prev => prev.filter(recipe => recipe.id !== id));
-                toast.success("Recipe deleted successfully!")
+                toast(<QuarterMasterToast message='Recipe deleted successfully!'/>);
             } catch (error) {
                 console.error('Error deleting recipe:', error);
-                toast.error('Failed to delete recipe.');
+                toast(<QuarterMasterToast message='Failed to delete recipe.'/>);
             }
         };
         //fucntionality so that the user can delete a recipe from their list, functions the same as delete in ingredeints 
