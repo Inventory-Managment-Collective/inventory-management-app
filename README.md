@@ -21,6 +21,17 @@ Quartermaster is an inventory management application that helps users keep track
 - Cloudinary for image hosting
 - React Toastify for notifications
 
+## Installation and Setup ⬇️
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/Inventory-Managment-Collective/inventory-management-app.git
+    cd inventory-management-app
+    ```
+
+2. Install dependencies:
+    ```bash
+    npm install
+
 ## Usage 📖
 - Navigate to the home page to view recent activity and explore shared recipes.
 - Create a new recipe by clicking the "Create New Recipe" button.
