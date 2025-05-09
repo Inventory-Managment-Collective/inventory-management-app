@@ -25,6 +25,7 @@ Quartermaster is an inventory management application that helps users keep track
 - Navigate to the home page to view recent activity and explore shared recipes.
 - Create a new recipe by clicking the "Create New Recipe" button.
 - Update or delete your existing recipes from the "Your Recipes" page.
+- Create, update and delete ingredients from your ingredients list. Users can add to their inventory ingredints with just the click of a button.
 - Update your profile picture, username, and about section in the profile settings.
 
 ## API Structure 🌐
