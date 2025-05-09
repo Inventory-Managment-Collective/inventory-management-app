@@ -14,6 +14,9 @@ Quartermaster is an inventory management application that helps users keep track
 - **Cloudinary Integration:** Image uploads are handled via Cloudinary.
 - **Firebase Integration:** Data is stored and managed using Firebase Realtime Database.
 
+## Link to deployed app 🛠️
+- https://quarter-master.netlify.app/
+
 ## Technologies Used 🤓
 - React.js
 - Firebase Authentication and Realtime Database
