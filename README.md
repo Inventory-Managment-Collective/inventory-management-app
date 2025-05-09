@@ -1,6 +1,6 @@
 # Quartermaster - Inventory Management App 🍲
 
-![Quartermaster](src/assets/Quartermaster.png')
+![Quartermaster](src/assets/Quartermaster.png)
 
 ## Introduction and Overview 🧑‍🍳
 Quartermaster is an inventory management application that helps users keep track their kitchen inventory, manage recipes, and share culinary creations with other users. The app provides functionalities such as ingredient tracking, recipe creation, and user profile management, aiming to streamline the cooking experience by keeping everything in one place and introduce a small social element to it.
