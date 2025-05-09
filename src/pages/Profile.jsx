@@ -51,7 +51,7 @@ export default function Profile() {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: 'auto', mt: 6 }}>
+    <Paper elevation={3} sx={{ p: 10, maxWidth: 800, mx: 'auto', mt: 6 }}>
       <Typography variant="h4" gutterBottom>
         Hello, {userProfile.username}!
       </Typography>
